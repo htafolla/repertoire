@@ -1,28 +1,38 @@
 import { readFileSync, appendFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { CuratedSignalsManager } from '../registry/CuratedSignalsManager.js';
+import { buildInferenceEntryFromGrooverLog } from './groover-log-parser.js';
 import type { InferenceEntry } from '../types.js';
 
 export interface GrooverIngesterOptions {
   sourceDir: string;
   targetDir?: string;
   signalsManager?: CuratedSignalsManager;
+  promoteAfterIngest?: boolean;
+}
+
+export interface GrooverIngestResult {
+  imported: number;
+  skipped: number;
+  promoted: string[];
 }
 
 export class GrooverLogIngester {
   private readonly sourceDir: string;
   private readonly targetDir: string;
   private readonly signalsManager: CuratedSignalsManager;
+  private readonly promoteAfterIngest: boolean;
 
   constructor(options: GrooverIngesterOptions) {
     this.sourceDir = options.sourceDir;
     this.targetDir = options.targetDir ?? 'logs/groover-inference';
     this.signalsManager = options.signalsManager ?? new CuratedSignalsManager();
+    this.promoteAfterIngest = options.promoteAfterIngest ?? true;
   }
 
-  ingest(): { imported: number; skipped: number } {
+  ingest(): GrooverIngestResult {
     if (!existsSync(this.sourceDir)) {
-      return { imported: 0, skipped: 0 };
+      return { imported: 0, skipped: 0, promoted: [] };
     }
 
     if (!existsSync(this.targetDir)) {
@@ -51,6 +61,7 @@ export class GrooverLogIngester {
           const entry = this.normalizeEntry(raw);
           const targetFile = join(this.targetDir, basename(file));
           appendFileSync(targetFile, JSON.stringify(entry) + '\n');
+          this.recordObservations(entry);
 
           if (id) existingIds.add(id);
           imported++;
@@ -60,39 +71,42 @@ export class GrooverLogIngester {
       }
     }
 
-    return { imported, skipped };
+    const promoted = this.promoteAfterIngest
+      ? this.signalsManager.promoteQualifiedSignals()
+      : [];
+
+    return { imported, skipped, promoted };
   }
 
   private normalizeEntry(raw: Record<string, unknown>): InferenceEntry {
-    const inference = String(raw.inference ?? '');
-    const matches = this.signalsManager.matchInferenceEntry(inference);
-    const inferenceType = this.extractInferenceType(inference);
+    const hasGrooverConfidence =
+      raw.match_confidence !== undefined ||
+      raw.matched_primitives !== undefined ||
+      raw.governance_forced !== undefined;
 
-    return {
-      timestamp: String(raw.timestamp ?? new Date().toISOString()),
-      source: 'groover',
-      post_id: raw.post_id as string | undefined,
-      post_title: (raw.post_title ?? raw.postTitle) as string | undefined,
-      comment_id: raw.comment_id as string | undefined,
-      inference,
-      public_reply: (raw.public_reply ?? raw.publicReply) as string | undefined,
-      inference_type: inferenceType,
-      dynamo_result: raw.dynamo_result as InferenceEntry['dynamo_result'],
-      repertoire_signals: matches.map((m) => m.signal.name),
-    };
+    if (hasGrooverConfidence) {
+      return buildInferenceEntryFromGrooverLog(raw);
+    }
+
+    const inference = String(raw.inference ?? '');
+    const fallbackMatches = this.signalsManager.signalMatchesToPrimitiveMatches(
+      this.signalsManager.matchInferenceEntry(inference),
+    );
+
+    return buildInferenceEntryFromGrooverLog(raw, fallbackMatches);
   }
 
-  private extractInferenceType(inference: string): InferenceEntry['inference_type'] {
-    const match = inference.match(/TYPE:\s*(\S+)/i);
-    const type = match?.[1]?.toLowerCase();
-    const valid = [
-      'theoretical',
-      'temporal-drift',
-      'practical-workflow',
-      'ontological-trap',
-      'provenance-failure',
-    ];
-    return valid.includes(type ?? '') ? (type as InferenceEntry['inference_type']) : undefined;
+  private recordObservations(entry: InferenceEntry): void {
+    const matches = (entry.matched_primitives ?? []).map((name) => ({
+      name,
+      confidence: entry.match_confidence?.[name] ?? 0.5,
+    }));
+
+    if (matches.length === 0) return;
+
+    this.signalsManager.recordPrimitiveObservations(matches, {
+      governanceForced: entry.governance_forced,
+    });
   }
 
   private loadExistingIds(): Set<string> {

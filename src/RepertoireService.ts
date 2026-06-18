@@ -56,7 +56,7 @@ export class RepertoireService {
 
   // --- Ingestion ---
 
-  ingestGrooverLogs(sourceDir: string): { imported: number; skipped: number } {
+  ingestGrooverLogs(sourceDir: string): { imported: number; skipped: number; promoted: string[] } {
     const ingester = new GrooverLogIngester({
       sourceDir,
       targetDir: this.logDir,

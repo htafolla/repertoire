@@ -103,6 +103,7 @@ export class MetaInferenceEngine {
       entries.length,
       { pass: totalPass, reject: totalReject, avgResonance },
       batchResults,
+      entries,
     );
 
     let finalReport = '';

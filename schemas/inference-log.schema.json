@@ -32,23 +32,45 @@
         "provenance-failure"
       ]
     },
+    "matched_primitives": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "match_confidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      }
+    },
+    "governance_forced": {
+      "type": "boolean"
+    },
     "dynamo_result": {
       "type": "object",
       "properties": {
         "result": {
-          "type": "object",
-          "properties": {
-            "recommendation": {
-              "type": "string",
-              "enum": ["PASS", "NEEDS_REVISION", "REJECT"]
-            },
-            "resonanceScore": { "type": "number", "minimum": 0, "maximum": 1 }
-          }
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "properties": {
+                "recommendation": {
+                  "type": "string",
+                  "enum": ["PASS", "NEEDS_REVISION", "REJECT"]
+                },
+                "resonanceScore": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            }
+          ]
         },
         "matchedPrimitives": {
           "type": "array",
           "items": { "type": "string" }
-        }
+        },
+        "error": { "type": "string" },
+        "status": { "type": "integer" }
       }
     },
     "repertoire_signals": {

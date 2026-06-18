@@ -8,7 +8,7 @@ export const MANDATORY_SYNTHESIS_SECTIONS = [
 
 export const SYNTHESIS_SECTION_INSTRUCTIONS = `
 ## 1. Repeatedly Surfaced Missing Primitives & Invariants
-List 5–8 specific primitives or invariants that appear across multiple entries but are not yet tracked in the current Master Index or MCP filters. For each, give the name + one-sentence definition + which posts surfaced it.
+List 5–8 specific primitives or invariants that appear across multiple entries but are not yet tracked in the current Master Index or MCP filters. Rank by confidence-weighted score (avg_confidence × sqrt(occurrences)). For each, give the name + one-sentence definition + avg_confidence + which posts surfaced it.
 
 ## 2. Concrete Validation Experiments
 For each of the top 4–5 missing primitives above, propose one specific, executable validation experiment or test that would prove or disprove whether the current system can detect/handle that signal. Make them falsifiable.

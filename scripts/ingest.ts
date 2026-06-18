@@ -17,7 +17,9 @@ if (!sourcePath) {
 
 if (source === 'groover') {
   const result = service.ingestGrooverLogs(sourcePath);
-  console.log(`Groover ingest: imported=${result.imported} skipped=${result.skipped}`);
+  console.log(
+    `Groover ingest: imported=${result.imported} skipped=${result.skipped} promoted=${result.promoted.join(',') || 'none'}`,
+  );
 } else if (source === 'xray') {
   const result = service.ingestXraySessions(sourcePath);
   console.log(`0xRay ingest: imported=${result.imported} skipped=${result.skipped}`);

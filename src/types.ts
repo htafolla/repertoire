@@ -11,12 +11,19 @@ export type SignalPriority = 'high' | 'medium' | 'low';
 
 export type SignalStatus = 'proposed' | 'validated' | 'integrated' | 'deprecated';
 
+export interface PrimitiveMatch {
+  name: string;
+  confidence: number;
+}
+
 export interface DynamoResult {
   result?: {
     recommendation?: 'PASS' | 'NEEDS_REVISION' | 'REJECT' | string;
     resonanceScore?: number;
-  };
+  } | null;
   matchedPrimitives?: string[];
+  error?: string;
+  status?: number;
 }
 
 export interface InferenceEntry {
@@ -29,8 +36,27 @@ export interface InferenceEntry {
   inference: string;
   public_reply?: string;
   inference_type?: InferenceType;
+  matched_primitives?: string[];
+  match_confidence?: Record<string, number>;
+  governance_forced?: boolean;
   dynamo_result?: DynamoResult;
   repertoire_signals?: string[];
+}
+
+export interface SignalObservationStats {
+  observation_count: number;
+  avg_confidence: number;
+  max_confidence: number;
+  last_seen: string;
+  governance_forced_count: number;
+}
+
+export interface WeightedPrimitive {
+  name: string;
+  weightedScore: number;
+  avgConfidence: number;
+  occurrenceCount: number;
+  governanceForcedCount: number;
 }
 
 export interface CuratedSignal {
@@ -46,6 +72,7 @@ export interface CuratedSignal {
   validation_experiment: string;
   master_index_integration: string;
   implementation_notes: string;
+  observation_stats?: SignalObservationStats;
 }
 
 export interface CuratedSignalsFile {

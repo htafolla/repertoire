@@ -2,9 +2,21 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import type {
   CuratedSignal,
   CuratedSignalsFile,
+  PrimitiveMatch,
   SignalMatch,
   SignalPriority,
+  SignalStatus,
 } from '../types.js';
+
+export interface PromotionGateOptions {
+  minAvgConfidence?: number;
+  minObservations?: number;
+  fromStatus?: SignalStatus;
+  toStatus?: SignalStatus;
+}
+
+export const DEFAULT_PROMOTION_MIN_CONFIDENCE = 0.55;
+export const DEFAULT_PROMOTION_MIN_OBSERVATIONS = 2;
 
 export class CuratedSignalsManager {
   private readonly filePath: string;
@@ -127,6 +139,97 @@ export class CuratedSignalsManager {
     }
 
     return matches.sort((a, b) => b.score - a.score);
+  }
+
+  /**
+   * Convert legacy text-match scores (2–10+) into a 0–1 confidence estimate.
+   */
+  signalMatchesToPrimitiveMatches(matches: SignalMatch[]): PrimitiveMatch[] {
+    return matches.map((match) => ({
+      name: match.signal.name,
+      confidence: Math.min(1, match.score / 10),
+    }));
+  }
+
+  recordPrimitiveObservations(
+    matches: PrimitiveMatch[],
+    options: { governanceForced?: boolean; minConfidence?: number } = {},
+  ): string[] {
+    const minConfidence = options.minConfidence ?? DEFAULT_PROMOTION_MIN_CONFIDENCE;
+    const data = this.load();
+    const updated: string[] = [];
+    const now = new Date().toISOString();
+
+    for (const match of matches) {
+      if (match.confidence < minConfidence) continue;
+
+      const signal = data.signals.find((entry) => entry.name === match.name);
+      if (!signal) continue;
+
+      const previous = signal.observation_stats;
+      const observationCount = (previous?.observation_count ?? 0) + 1;
+      const totalConfidence = (previous?.avg_confidence ?? 0) * (observationCount - 1) + match.confidence;
+
+      signal.observation_stats = {
+        observation_count: observationCount,
+        avg_confidence: totalConfidence / observationCount,
+        max_confidence: Math.max(previous?.max_confidence ?? 0, match.confidence),
+        last_seen: now,
+        governance_forced_count:
+          (previous?.governance_forced_count ?? 0) + (options.governanceForced ? 1 : 0),
+      };
+      updated.push(signal.name);
+    }
+
+    if (updated.length > 0) {
+      this.save(data);
+    }
+
+    return updated;
+  }
+
+  shouldPromoteSignal(
+    signal: CuratedSignal,
+    options: PromotionGateOptions = {},
+  ): boolean {
+    const minAvgConfidence = options.minAvgConfidence ?? DEFAULT_PROMOTION_MIN_CONFIDENCE;
+    const minObservations = options.minObservations ?? DEFAULT_PROMOTION_MIN_OBSERVATIONS;
+    const fromStatus = options.fromStatus ?? 'proposed';
+    const stats = signal.observation_stats;
+
+    if ((signal.status ?? 'proposed') !== fromStatus || !stats) {
+      return false;
+    }
+
+    return (
+      stats.avg_confidence >= minAvgConfidence &&
+      stats.observation_count >= minObservations
+    );
+  }
+
+  promoteQualifiedSignals(options: PromotionGateOptions = {}): string[] {
+    const toStatus = options.toStatus ?? 'validated';
+    const data = this.load();
+    const promoted: string[] = [];
+
+    for (const signal of data.signals) {
+      if (this.shouldPromoteSignal(signal, options)) {
+        signal.status = toStatus;
+        promoted.push(signal.name);
+      }
+    }
+
+    if (promoted.length > 0) {
+      this.save(data);
+    }
+
+    return promoted;
+  }
+
+  getSignalsAboveConfidence(minAvgConfidence = DEFAULT_PROMOTION_MIN_CONFIDENCE): CuratedSignal[] {
+    return this.load().signals.filter(
+      (signal) => (signal.observation_stats?.avg_confidence ?? 0) >= minAvgConfidence,
+    );
   }
 
   private createEmptyFile(): CuratedSignalsFile {
