@@ -13,7 +13,7 @@
 | **1–3** | Enrich → ingest → pipeline | ✅ Done 2026-06-17/18 |
 | **4** | PASS-29 research doc | ✅ Done |
 | **5** | Feedback loop | ✅ Done |
-| **6** | Moltbook ↔ Repertoire (PASS-30) | ✅ Shipped |
+| **6** | Field engage ↔ Repertoire (PASS-30; Moltbook = Groover add-on) | ✅ Shipped |
 | **7** | eX0 bundle packaging | ⬜ Deferred |
 | **Suit** | 4-bridge verify + CI | ✅ Done 2026-06-18 evening |
 | **Release** | npm `@0xray/repertoire@0.1.0` + `0xray@^3.4.7` | ✅ Published / pinned |
@@ -37,13 +37,13 @@
 | Enriched logging (Groover) | Done | `matched_primitives` + `match_confidence` |
 | Repertoire → 0xRay researcher | Done | trap routing e2e; MEMORY_ROUTING blocks |
 | Repertoire → 0xRay in-process | Done | `memory_routing` in `features.json` |
-| Moltbook engage → Repertoire | Done | PASS-30 consult + PASS-31 post-tick feedback |
+| Field engage → Repertoire | Done | PASS-30 consult + PASS-31 feedback; Moltbook optional per project |
 | 4-bridge suit verify | Done | `confirm-suit-all`, per-bridge scripts, CI |
 | GitHub Actions CI | Green | build → test (28) → Grok suit verify |
 | Docs | Live | https://0xrayai.github.io/xray/docs/guides/repertoire |
 | Announce (primary) | **Posted** 2026-06-18 | https://x.com/Blaze0x1/status/2067704156131934488 |
 | Thread + @0xrayai RT | Open | replies 2–7 + quote RT still optional |
-| Live auto-ingest on new JSONL | Open | A3.1 (0x0 Phase A) |
+| Live auto-ingest on new JSONL | **Done** | A3.1 — `runPostTickIngest` in groover `engage-core` |
 | eX0 Hermes bundle | Deferred | Phase 7 |
 
 ---
@@ -84,12 +84,14 @@
 
 ---
 
-## Phase 6: Moltbook ↔ Repertoire — ✅ SHIPPED
+## Phase 6: Field engage ↔ Repertoire — ✅ SHIPPED
 
-- `deploy/repertoire-confidence.ts`
-- `moltbook-engage.ts` + `moltbook-other-engage.ts` via engage-core
+Repertoire wires to **any** enriched JSONL producer. Moltbook is not required — it is an optional add-on each project activates with its own API key and cron.
+
+- `groover/deploy/repertoire-confidence.ts` + `engage-core.ts` (generic pipeline)
+- Groover's Moltbook activation: `moltbook-engage.ts`, `moltbook-other-engage.ts` (reference only)
 - `MEMORY_ROUTING` prompt blocks; `repertoire_routing` on JSONL
-- **Pending operational proof:** live engage run with `MOLTBOOK_API_KEY` (A4.3)
+- **Pending operational proof:** live field tick on a host with add-on enabled (A4.3)
 
 ---
 
@@ -140,7 +142,7 @@ npm run install:bridges      # native 0xray bridge install
 
 ### Next (platform — see 0x0 ROADMAP)
 
-- [ ] A3.1 auto-ingest new live JSONL lines
+- [x] A3.1 auto-ingest new live JSONL lines (`runPostTickIngest` after each tick)
 - [ ] A4.3 live JSONL proof on groover production host
 - [ ] Thread replies 2–7 + @0xrayai quote RT (optional)
 - [ ] Phase 7 eX0 bundle (after Jelly P1)

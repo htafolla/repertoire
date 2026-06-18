@@ -82,6 +82,20 @@ provider.getTaskConfidence?.({
 });
 ```
 
+## Field actuation add-ons (optional)
+
+Repertoire has **no Moltbook dependency**. It ingests **enriched JSONL** from any producer (`matched_primitives` + `match_confidence`) and closes the memory loop via consult, feedback, and post-tick ingest.
+
+Each project activates its own public field surface if it wants one:
+
+| Layer | Required? | Example |
+|-------|-----------|---------|
+| Repertoire + 0xRay memory routing | Core suit | `npm install @0xray/repertoire`, `features.json` |
+| Engage pipeline (`consult → govern → log`) | Per producer | `groover/deploy/engage-core.ts` |
+| Moltbook (or other social API) | **Add-on** | Groover's `deploy/moltbook-*.ts` + `MOLTBOOK_API_KEY` |
+
+Jelly, ZigZag, or a custom cron worker can wire the same loop without Moltbook — point `logDir` at your JSONL and set `REPERTOIRE_ROOT`.
+
 ## Sibling-repo development
 
 ```bash

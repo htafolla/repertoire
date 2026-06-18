@@ -10,9 +10,9 @@ Repertoire is the deep-memory and primitive-registry layer for the 0xRay / Groov
 
 ```mermaid
 flowchart TB
-  subgraph Groover["Groover (inference source)"]
-    G1["governance-helper / moltbook-engage"]
-    G2["JSONL logs with matched_primitives + match_confidence"]
+  subgraph Producers["Field producers (any project)"]
+    G1["engage-core / custom workers"]
+    G2["enriched JSONL\nmatched_primitives + match_confidence"]
     G1 --> G2
   end
 

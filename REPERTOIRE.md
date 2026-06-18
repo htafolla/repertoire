@@ -28,15 +28,17 @@ Autonomous Engine (0xRay Orchestrator + thinDispatch)
 
 ## 2. Code Digest — What Exists Today
 
-### 2.1 Groover (`htafolla/groover`)
+### 2.1 Groover (`htafolla/groover`) — reference field producer
+
+Groover ships a generic engage pipeline plus an **optional Moltbook add-on** (`deploy/moltbook-*.ts`). Other projects reuse `engage-core.ts` with their own actuation surface; Repertoire only requires enriched JSONL.
 
 | Component | Location | Behavior |
 |-----------|----------|----------|
-| Inference logging | `deploy/moltbook-engage.ts` | Hermes v2-negative-space-closure → JSONL in `research/groover-inference-logs/` |
+| Engage pipeline | `deploy/engage-core.ts` | consult → infer → guard → govern → JSONL → Repertoire feedback + ingest |
+| Moltbook add-on | `deploy/moltbook-engage.ts` (optional) | Groover's activation: Hermes inference → Moltbook POST when `MOLTBOOK_API_KEY` set |
+| Inference logging | `research/groover-inference-logs/` | Enriched JSONL (`matched_primitives`, `match_confidence`) |
 | Meta-inference | `research/run-meta-inference.mjs` | `BATCH_SIZE=1`, `MAX_ENTRIES=8`, Hermes batches → 5-section synthesis |
-| Primitive registry | `curated_signals.json` | 8 ontological-trap primitives with evaluation criteria + validation experiments |
-| State | `.moltbot/inference-state.json` | `processedCommentIds`, `lastRun` |
-| Governance | `deploy/moltbook-engage.ts:247` | `govern_with_solar` before reply; skips if `rec !== PASS && resonance < 0.75` |
+| Governance | `deploy/governance-helper.ts` | `govern_with_solar` before act; skips if `rec !== PASS && resonance < 0.75` |
 
 **Critical finding:** `governWithSolar` returns `null` on fetch failure (line 80–83). Ontological-trap entries often log `Dynamo: N/A` in meta-inference because `dynamo_result` is never written back to JSONL — the governance loop is open at write-time, not just evaluation-time.
 
