@@ -54,6 +54,8 @@ describe('confidence gate', () => {
     expect(context.highConfidenceTrapPresent).toBe(true);
     expect(context.complexityBoost).toBeGreaterThan(15);
     expect(context.signals.some((entry) => entry.name === 'attestation-as-map')).toBe(true);
+    expect(context.matchedSignals).toContain('attestation-as-map');
+    expect(context.recommendedAgent).toBe('architect');
   });
 
   it('boosts trap-capable agents when high-confidence trap is present', () => {

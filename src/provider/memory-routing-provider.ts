@@ -35,11 +35,13 @@ export interface MemoryOrchestrationTask {
 
 export interface MemoryTaskConfidence {
   signals: Array<{ name: string; confidence: number }>;
+  matchedSignals: string[];
   avgConfidence: number;
   maxConfidence: number;
   highConfidenceTrapPresent: boolean;
   ontologicalTrapDetected: boolean;
   complexityBoost: number;
+  recommendedAgent: string | null;
 }
 
 export interface MemoryRoutingContext {
@@ -274,11 +276,13 @@ export class RepertoireMemoryRoutingProvider implements MemoryRoutingProvider {
         name: entry.name,
         confidence: entry.confidence,
       })),
+      matchedSignals: context.matchedSignals,
       avgConfidence: context.avgConfidence,
       maxConfidence: context.maxConfidence,
       highConfidenceTrapPresent: context.highConfidenceTrapPresent,
       ontologicalTrapDetected: context.ontologicalTrapDetected,
       complexityBoost: context.complexityBoost,
+      recommendedAgent: context.recommendedAgent,
     };
   }
 

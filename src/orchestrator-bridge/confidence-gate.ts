@@ -79,12 +79,14 @@ export function getConfidenceForTask(
 
   return {
     signals,
+    matchedSignals: signals.map((entry) => entry.name),
     avgConfidence,
     maxConfidence,
     highConfidenceTrapPresent,
     ontologicalTrapDetected: trapDetected,
     minConfidenceGate: DEFAULT_MIN_CONFIDENCE_GATE,
     complexityBoost,
+    recommendedAgent: highConfidenceTrapPresent ? 'architect' : null,
   };
 }
 

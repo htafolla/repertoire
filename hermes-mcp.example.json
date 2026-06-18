@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "repertoire": {
+      "command": "node",
+      "args": ["/absolute/path/to/repertoire/dist/mcp/server.js"],
+      "env": {
+        "CURATED_SIGNALS_PATH": "/absolute/path/to/repertoire/data/curated_signals.json"
+      }
+    },
+    "xray-researcher": {
+      "command": "npx",
+      "args": ["-y", "0xray", "mcp", "researcher"]
+    },
+    "xray-architect-tools": {
+      "command": "npx",
+      "args": ["-y", "0xray", "mcp", "architect-tools"]
+    },
+    "xray-governance": {
+      "command": "npx",
+      "args": ["-y", "0xray", "mcp", "governance"]
+    }
+  }
+}

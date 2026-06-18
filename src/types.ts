@@ -121,12 +121,14 @@ export interface SignalConfidenceDetail {
 
 export interface TaskConfidenceContext {
   signals: SignalConfidenceDetail[];
+  matchedSignals: string[];
   avgConfidence: number;
   maxConfidence: number;
   highConfidenceTrapPresent: boolean;
   ontologicalTrapDetected: boolean;
   minConfidenceGate: number;
   complexityBoost: number;
+  recommendedAgent: string | null;
 }
 
 export interface RepertoireRoutingContext {

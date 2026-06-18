@@ -67,6 +67,8 @@ describe('RepertoireService MCP query helpers', () => {
     expect(context.highConfidenceTrapPresent).toBe(true);
     expect(context.complexityBoost).toBeGreaterThan(0);
     expect(context.signals.some((entry) => entry.name === 'attestation-as-map')).toBe(true);
+    expect(context.matchedSignals).toContain('attestation-as-map');
+    expect(context.recommendedAgent).toBe('architect');
   });
 
   it('searches primitives using registry observation_stats only', () => {
