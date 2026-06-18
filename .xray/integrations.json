@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "integrations": {
+    "openclaw": {
+      "enabled": false,
+      "type": "external-service",
+      "version": "3.1.0",
+      "config": {}
+    },
+    "python-bridge": {
+      "enabled": false,
+      "type": "protocol-bridge",
+      "version": "3.1.0",
+      "config": {}
+    },
+    "react": {
+      "enabled": false,
+      "type": "framework-adapter",
+      "version": "3.1.0",
+      "config": {}
+    },
+    "repertoire": {
+      "enabled": true,
+      "type": "memory-routing-provider",
+      "version": "0.1.0",
+      "config": {
+        "module_path": "dist/provider/memory-routing-provider.js",
+        "feedbackDir": "logs/orchestrator-feedback"
+      }
+    }
+  }
+}

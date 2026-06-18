@@ -16,6 +16,7 @@ import {
 import { DEFAULT_MIN_CONFIDENCE_GATE } from './orchestrator-bridge/confidence-gate.js';
 import {
   DEFAULT_DATA_DIR,
+  DEFAULT_FEEDBACK_DIR,
   DEFAULT_LOG_DIR,
   DEFAULT_SIGNALS_PATH,
   DEFAULT_STATE_PATH,
@@ -37,6 +38,7 @@ export interface RepertoireServiceOptions {
   logDir?: string;
   signalsPath?: string;
   statePath?: string;
+  feedbackDir?: string;
 }
 
 export class RepertoireService {
@@ -63,7 +65,9 @@ export class RepertoireService {
       logDir: this.logDir,
       statePath: options.statePath ?? DEFAULT_STATE_PATH,
     });
-    this.feedbackIngester = new OrchestratorFeedbackIngester();
+    this.feedbackIngester = new OrchestratorFeedbackIngester(
+      options.feedbackDir ?? DEFAULT_FEEDBACK_DIR,
+    );
   }
 
   ingestGrooverLogs(sourceDir: string): { imported: number; skipped: number; promoted: string[] } {

@@ -74,10 +74,12 @@ interface McpSession {
 
 function mcpEnvForWorkspace(workspace: string): Record<string, string> {
   const dataDir = join(workspace, 'data');
+  const feedbackDir = join(workspace, 'logs', 'orchestrator-feedback');
   return {
     ...process.env,
     CURATED_SIGNALS_PATH: join(dataDir, 'curated_signals.json'),
     REPERTOIRE_DATA_DIR: dataDir,
+    REPERTOIRE_FEEDBACK_DIR: feedbackDir,
   } as Record<string, string>;
 }
 

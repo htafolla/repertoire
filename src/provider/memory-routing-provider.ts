@@ -84,6 +84,7 @@ export interface MemoryRoutingProviderConfig {
   signalsPath?: string;
   logDir?: string;
   statePath?: string;
+  feedbackDir?: string;
 }
 
 export interface MemoryRoutingProvider {
@@ -171,6 +172,7 @@ export class RepertoireMemoryRoutingProvider implements MemoryRoutingProvider {
       signalsPath: config.signalsPath ? resolve(cwd, config.signalsPath) : undefined,
       statePath: config.statePath ? resolve(cwd, config.statePath) : undefined,
       logDir: config.logDir ? resolve(cwd, config.logDir) : undefined,
+      feedbackDir: config.feedbackDir ? resolve(cwd, config.feedbackDir) : undefined,
     });
   }
 

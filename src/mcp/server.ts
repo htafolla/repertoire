@@ -13,6 +13,7 @@ import { RepertoireService } from '../RepertoireService.js';
 import type { RepertoireServiceOptions } from '../RepertoireService.js';
 import {
   DEFAULT_DATA_DIR,
+  DEFAULT_FEEDBACK_DIR,
   DEFAULT_LOG_DIR,
   DEFAULT_SIGNALS_PATH,
   DEFAULT_STATE_PATH,
@@ -24,6 +25,7 @@ function serviceOptionsFromEnv(): RepertoireServiceOptions {
     signalsPath: process.env.CURATED_SIGNALS_PATH ?? DEFAULT_SIGNALS_PATH,
     statePath: process.env.REPERTOIRE_STATE_PATH ?? DEFAULT_STATE_PATH,
     logDir: process.env.REPERTOIRE_LOG_DIR ?? DEFAULT_LOG_DIR,
+    feedbackDir: process.env.REPERTOIRE_FEEDBACK_DIR ?? DEFAULT_FEEDBACK_DIR,
   };
 }
 

@@ -104,6 +104,7 @@ function createTestWorkspace(): TestWorkspace {
     logDir,
     signalsPath: join(dataDir, 'curated_signals.json'),
     statePath: join(dataDir, 'inference-state.json'),
+    feedbackDir: join(root, 'logs', 'orchestrator-feedback'),
   });
 
   return { root, service, sourceDir };

@@ -1,0 +1,59 @@
+[
+  {
+    "keywords": [
+      "design",
+      "architect",
+      "plan",
+      "system",
+      "model",
+      "pattern",
+      "scalability",
+      "architecture",
+      "governance"
+    ],
+    "skill": "architecture-patterns",
+    "agent": "architect",
+    "confidence": 0.95
+  },
+  {
+    "keywords": [
+      "ontological-trap",
+      "attestation-as-map",
+      "consumer-boundary",
+      "trap",
+      "repertoire",
+      "memory-routing",
+      "primitive",
+      "signal"
+    ],
+    "skill": "repertoire-trap-handling",
+    "agent": "architect",
+    "confidence": 0.95
+  },
+  {
+    "keywords": [
+      "research",
+      "codebase",
+      "explore",
+      "discover",
+      "implementation"
+    ],
+    "skill": "researcher",
+    "agent": "researcher",
+    "confidence": 0.88
+  },
+  {
+    "keywords": [
+      "test",
+      "testing",
+      "coverage",
+      "unit",
+      "e2e",
+      "spec",
+      "verify"
+    ],
+    "skill": "testing-best-practices",
+    "agent": "testing-lead",
+    "confidence": 0.95
+  }
+]

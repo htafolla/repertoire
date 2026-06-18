@@ -152,7 +152,8 @@
     "config": {
       "dataDir": "data",
       "signalsPath": "data/curated_signals.json",
-      "logDir": "logs/groover-inference"
+      "logDir": "logs/groover-inference",
+      "feedbackDir": "logs/orchestrator-feedback"
     }
   }
 }
