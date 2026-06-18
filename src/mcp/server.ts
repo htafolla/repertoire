@@ -11,14 +11,20 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { RepertoireService } from '../RepertoireService.js';
 import type { RepertoireServiceOptions } from '../RepertoireService.js';
+import {
+  DEFAULT_DATA_DIR,
+  DEFAULT_LOG_DIR,
+  DEFAULT_SIGNALS_PATH,
+  DEFAULT_STATE_PATH,
+} from '../paths.js';
 
 function serviceOptionsFromEnv(): RepertoireServiceOptions {
-  const options: RepertoireServiceOptions = {};
-  if (process.env.REPERTOIRE_DATA_DIR) options.dataDir = process.env.REPERTOIRE_DATA_DIR;
-  if (process.env.CURATED_SIGNALS_PATH) options.signalsPath = process.env.CURATED_SIGNALS_PATH;
-  if (process.env.REPERTOIRE_STATE_PATH) options.statePath = process.env.REPERTOIRE_STATE_PATH;
-  if (process.env.REPERTOIRE_LOG_DIR) options.logDir = process.env.REPERTOIRE_LOG_DIR;
-  return options;
+  return {
+    dataDir: process.env.REPERTOIRE_DATA_DIR ?? DEFAULT_DATA_DIR,
+    signalsPath: process.env.CURATED_SIGNALS_PATH ?? DEFAULT_SIGNALS_PATH,
+    statePath: process.env.REPERTOIRE_STATE_PATH ?? DEFAULT_STATE_PATH,
+    logDir: process.env.REPERTOIRE_LOG_DIR ?? DEFAULT_LOG_DIR,
+  };
 }
 
 const service = new RepertoireService(serviceOptionsFromEnv());

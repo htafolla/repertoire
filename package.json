@@ -3,6 +3,32 @@
   "version": "0.1.0",
   "description": "Deep memory, synthesis, and orchestrator enrichment for the 0xRay/Groover stack",
   "type": "module",
+  "license": "MIT",
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0xRayAI/repertoire.git"
+  },
+  "homepage": "https://github.com/0xRayAI/repertoire#readme",
+  "bugs": {
+    "url": "https://github.com/0xRayAI/repertoire/issues"
+  },
+  "keywords": [
+    "0xray",
+    "repertoire",
+    "mcp",
+    "memory-routing",
+    "orchestration",
+    "groover",
+    "agent",
+    "governance"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -18,8 +44,22 @@
   "bin": {
     "repertoire-mcp": "./dist/mcp/server.js"
   },
+  "files": [
+    "dist/",
+    "data/curated_signals.json",
+    "schemas/",
+    "skills/repertoire-trap-handling/",
+    "docs/MEMORY-ROUTING-PROVIDER.md",
+    "hermes-mcp.example.json",
+    "mcp-config.example.json",
+    "AGENTS.md",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build && npm test && node scripts/consumer-install-smoke.mjs",
+    "pack:check": "npm run build && node scripts/consumer-install-smoke.mjs && npm pack --dry-run",
     "ingest": "node --import tsx scripts/ingest.ts",
     "meta-inference": "node --import tsx scripts/run-meta-inference.ts",
     "pipeline": "node --import tsx scripts/run-pipeline.ts",

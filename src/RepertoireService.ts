@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import {
   CuratedSignalsManager,
   type FeedbackOutcomeResult,
@@ -13,6 +14,12 @@ import {
   type GovernWithSolarFn,
 } from './governance/ontological-trap-enforcer.js';
 import { DEFAULT_MIN_CONFIDENCE_GATE } from './orchestrator-bridge/confidence-gate.js';
+import {
+  DEFAULT_DATA_DIR,
+  DEFAULT_LOG_DIR,
+  DEFAULT_SIGNALS_PATH,
+  DEFAULT_STATE_PATH,
+} from './paths.js';
 import type {
   AgentCapability,
   CuratedSignal,
@@ -42,19 +49,19 @@ export class RepertoireService {
   private readonly logDir: string;
 
   constructor(options: RepertoireServiceOptions = {}) {
-    const dataDir = options.dataDir ?? 'data';
-    this.logDir = options.logDir ?? 'logs/groover-inference';
+    const dataDir = options.dataDir ?? DEFAULT_DATA_DIR;
+    this.logDir = options.logDir ?? DEFAULT_LOG_DIR;
 
     this.signalsManager = new CuratedSignalsManager(
-      options.signalsPath ?? `${dataDir}/curated_signals.json`,
+      options.signalsPath ?? (options.dataDir ? join(dataDir, 'curated_signals.json') : DEFAULT_SIGNALS_PATH),
     );
     this.stateManager = new InferenceStateManager(
-      options.statePath ?? `${dataDir}/inference-state.json`,
+      options.statePath ?? (options.dataDir ? join(dataDir, 'inference-state.json') : DEFAULT_STATE_PATH),
     );
     this.orchestratorBridge = new RepertoireOrchestratorBridge(this.signalsManager);
     this.metaInference = new MetaInferenceEngine({
       logDir: this.logDir,
-      statePath: options.statePath ?? `${dataDir}/inference-state.json`,
+      statePath: options.statePath ?? DEFAULT_STATE_PATH,
     });
     this.feedbackIngester = new OrchestratorFeedbackIngester();
   }

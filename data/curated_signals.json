@@ -1,6 +1,6 @@
 {
   "description": "Curated high-signal primitives and invariants surfaced by Groover inference that are not yet tracked in the Master Index or MCP filters. Each entry includes implementation guidance for autonomous agents.",
-  "last_updated": "2026-06-18T03:14:45.594Z",
+  "last_updated": "2026-06-18T03:22:33.927Z",
   "source": "meta-inference-2026-06-17-deep",
   "schema_version": "1.1",
   "implementation_guidance": {
@@ -38,20 +38,20 @@
       "implementation_notes": "Add detection logic in the inference prompt for replies that contrast 'map' vs 'verdict' language. Enforce via govern_with_solar on ontological-trap entries.",
       "observation_stats": {
         "observation_count": 335,
-        "avg_confidence": 0.9948656716417911,
+        "avg_confidence": 0.9968656716417911,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T03:22:33.926Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
+        "outcome_count": 5,
+        "success_count": 5,
         "failure_count": 0,
         "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
+        "last_task_id": "mcp-smoke-task",
         "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "last_duration_ms": 1200,
+        "last_seen": "2026-06-18T03:22:33.926Z"
       }
     },
     {

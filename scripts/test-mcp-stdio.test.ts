@@ -72,6 +72,15 @@ interface McpSession {
   workspace: string;
 }
 
+function mcpEnvForWorkspace(workspace: string): Record<string, string> {
+  const dataDir = join(workspace, 'data');
+  return {
+    ...process.env,
+    CURATED_SIGNALS_PATH: join(dataDir, 'curated_signals.json'),
+    REPERTOIRE_DATA_DIR: dataDir,
+  } as Record<string, string>;
+}
+
 async function openMcpSession(options: {
   cwd: string;
   env?: Record<string, string>;
@@ -118,7 +127,10 @@ describe('MCP stdio smoke (Hermes path)', () => {
     mkdirSync(dataDir, { recursive: true });
     seedPromotedRegistry(join(dataDir, 'curated_signals.json'));
 
-    const session = await openMcpSession({ cwd: workspace });
+    const session = await openMcpSession({
+      cwd: workspace,
+      env: mcpEnvForWorkspace(workspace),
+    });
     try {
       const tools = await session.client.listTools();
       const names = tools.tools.map((tool) => tool.name).sort();
@@ -138,16 +150,11 @@ describe('MCP stdio smoke (Hermes path)', () => {
     workspace = mkdtempSync(join(tmpdir(), 'repertoire-mcp-'));
     const dataDir = join(workspace, 'data');
     mkdirSync(dataDir, { recursive: true });
-    const signalsPath = join(dataDir, 'curated_signals.json');
-    seedPromotedRegistry(signalsPath);
+    seedPromotedRegistry(join(dataDir, 'curated_signals.json'));
 
     const session = await openMcpSession({
       cwd: workspace,
-      env: {
-        ...process.env,
-        CURATED_SIGNALS_PATH: signalsPath,
-        REPERTOIRE_DATA_DIR: dataDir,
-      } as Record<string, string>,
+      env: mcpEnvForWorkspace(workspace),
     });
 
     try {
@@ -186,7 +193,10 @@ describe('MCP stdio smoke (Hermes path)', () => {
     mkdirSync(dataDir, { recursive: true });
     seedPromotedRegistry(join(dataDir, 'curated_signals.json'));
 
-    const session = await openMcpSession({ cwd: workspace });
+    const session = await openMcpSession({
+      cwd: workspace,
+      env: mcpEnvForWorkspace(workspace),
+    });
     try {
       const result = await session.client.callTool({
         name: 'repertoire__search_primitives',
@@ -218,7 +228,10 @@ describe('MCP stdio smoke (Hermes path)', () => {
     mkdirSync(dataDir, { recursive: true });
     seedPromotedRegistry(join(dataDir, 'curated_signals.json'));
 
-    const session = await openMcpSession({ cwd: workspace });
+    const session = await openMcpSession({
+      cwd: workspace,
+      env: mcpEnvForWorkspace(workspace),
+    });
     try {
       const result = await session.client.callTool({
         name: 'repertoire__get_high_confidence_signals',
@@ -242,7 +255,10 @@ describe('MCP stdio smoke (Hermes path)', () => {
     mkdirSync(dataDir, { recursive: true });
     seedPromotedRegistry(join(dataDir, 'curated_signals.json'));
 
-    const session = await openMcpSession({ cwd: workspace });
+    const session = await openMcpSession({
+      cwd: workspace,
+      env: mcpEnvForWorkspace(workspace),
+    });
     try {
       const result = await session.client.callTool({
         name: 'repertoire__ingest_feedback',
