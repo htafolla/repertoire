@@ -9,8 +9,10 @@ import {
   OntologicalTrapEnforcer,
   type GovernWithSolarFn,
 } from './governance/ontological-trap-enforcer.js';
+import { DEFAULT_MIN_CONFIDENCE_GATE } from './orchestrator-bridge/confidence-gate.js';
 import type {
   AgentCapability,
+  CuratedSignal,
   ExecutionPlan,
   InferenceEntry,
   OrchestrationTask,
@@ -18,6 +20,7 @@ import type {
   RepertoireInheritedContext,
   RepertoireRoutingContext,
   SynthesisReport,
+  TaskConfidenceContext,
 } from './types.js';
 
 export interface RepertoireServiceOptions {
@@ -149,5 +152,85 @@ export class RepertoireService {
 
   getHighPrioritySignals() {
     return this.signalsManager.getHighPrioritySignals();
+  }
+
+  getHighConfidenceSignals(options: {
+    minConfidence?: number;
+    tags?: string[];
+    limit?: number;
+  } = {}): Array<CuratedSignal & { effectiveConfidence: number }> {
+    const minConfidence = options.minConfidence ?? DEFAULT_MIN_CONFIDENCE_GATE;
+    const limit = options.limit ?? 20;
+    const tagFilter = options.tags?.map((tag) => tag.toLowerCase());
+
+    const signals = this.signalsManager
+      .getSignalsAboveConfidence(minConfidence)
+      .filter((signal) => {
+        if (!tagFilter?.length) return true;
+        return signal.tags.some((tag) => tagFilter.includes(tag.toLowerCase()));
+      })
+      .map((signal) => ({
+        ...signal,
+        effectiveConfidence: signal.observation_stats?.avg_confidence ?? DEFAULT_MIN_CONFIDENCE_GATE,
+      }))
+      .sort(
+        (a, b) =>
+          b.effectiveConfidence - a.effectiveConfidence ||
+          (b.observation_stats?.observation_count ?? 0) -
+            (a.observation_stats?.observation_count ?? 0),
+      )
+      .slice(0, limit);
+
+    return signals;
+  }
+
+  getTaskConfidence(input: {
+    description: string;
+    type?: string;
+    id?: string;
+  }): TaskConfidenceContext {
+    const task: OrchestrationTask = {
+      id: input.id ?? 'mcp-query',
+      description: input.description,
+      type: input.type ?? 'general',
+    };
+    return this.orchestratorBridge.getConfidenceForTask(task);
+  }
+
+  searchPrimitives(
+    query: string,
+    options: { minConfidence?: number; limit?: number } = {},
+  ): Array<{
+    name: string;
+    confidence: number;
+    score: number;
+    priority: string;
+    definition: string;
+    tags: string[];
+    status?: string;
+    observationCount?: number;
+  }> {
+    const minConfidence = options.minConfidence ?? 0;
+    const limit = options.limit ?? 10;
+    const matches = this.signalsManager.matchByText(query, 2);
+
+    return matches
+      .map((match) => {
+        const registryConfidence = match.signal.observation_stats?.avg_confidence;
+        const confidence = registryConfidence ?? Math.min(1, match.score / 10);
+        return {
+          name: match.signal.name,
+          confidence,
+          score: match.score,
+          priority: match.signal.priority,
+          definition: match.signal.definition,
+          tags: match.signal.tags,
+          status: match.signal.status,
+          observationCount: match.signal.observation_stats?.observation_count,
+        };
+      })
+      .filter((entry) => entry.confidence >= minConfidence)
+      .sort((a, b) => b.confidence - a.confidence || b.score - a.score)
+      .slice(0, limit);
   }
 }

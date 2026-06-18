@@ -14,77 +14,175 @@ import { RepertoireService } from '../RepertoireService.js';
 
 const service = new RepertoireService();
 
+const TOOLS = [
+  {
+    name: 'repertoire__get_high_confidence_signals',
+    description:
+      'List curated signals at or above a confidence threshold, optionally filtered by tags',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        minConfidence: {
+          type: 'number',
+          minimum: 0,
+          maximum: 1,
+          description: 'Minimum avg_confidence from observation_stats (default 0.55)',
+        },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Filter to signals containing any of these tags',
+        },
+        limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results (default 20)' },
+      },
+    },
+  },
+  {
+    name: 'repertoire__get_task_confidence',
+    description:
+      'Evaluate confidence context for a task description (trap detection, complexity boost, matched signals)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        description: { type: 'string', description: 'Task or operation description' },
+        type: { type: 'string', description: 'Task type (e.g. design, governance)' },
+        taskId: { type: 'string', description: 'Optional task identifier' },
+      },
+      required: ['description'],
+    },
+  },
+  {
+    name: 'repertoire__search_primitives',
+    description:
+      'Search curated primitives by text with confidence scores for agent introspection',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Text to match against signal registry' },
+        minConfidence: {
+          type: 'number',
+          minimum: 0,
+          maximum: 1,
+          description: 'Minimum confidence threshold (default 0)',
+        },
+        limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results (default 10)' },
+      },
+      required: ['query'],
+    },
+  },
+  {
+    name: 'query_signals',
+    description: 'Query curated signals by text, tag, or priority',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Text to match against signals' },
+        tag: { type: 'string', description: 'Filter by tag (e.g. ontological-trap)' },
+        priority: { type: 'string', enum: ['high', 'medium', 'low'] },
+      },
+    },
+  },
+  {
+    name: 'match_primitives',
+    description: 'Match operation text to curated primitives with scores',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        operation: { type: 'string' },
+      },
+      required: ['operation'],
+    },
+  },
+  {
+    name: 'get_routing_context',
+    description: 'Build memory routing context for orchestrator/thinDispatch',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        operation: { type: 'string' },
+      },
+      required: ['operation'],
+    },
+  },
+  {
+    name: 'get_high_priority_signals',
+    description: 'List all high-priority curated signals',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'ingest_feedback',
+    description: 'Record orchestrator routing outcome for meta-inference feedback loop',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sessionId: { type: 'string' },
+        taskId: { type: 'string' },
+        assignedAgent: { type: 'string' },
+        memorySignals: { type: 'array', items: { type: 'string' } },
+        complexity: { type: 'number' },
+        success: { type: 'boolean' },
+        durationMs: { type: 'number' },
+      },
+      required: ['sessionId', 'taskId', 'assignedAgent', 'success', 'durationMs'],
+    },
+  },
+] as const;
+
 const server = new Server(
   { name: 'repertoire', version: '0.1.0' },
   { capabilities: { tools: {} } },
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [
-    {
-      name: 'query_signals',
-      description: 'Query curated signals by text, tag, or priority',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          query: { type: 'string', description: 'Text to match against signals' },
-          tag: { type: 'string', description: 'Filter by tag (e.g. ontological-trap)' },
-          priority: { type: 'string', enum: ['high', 'medium', 'low'] },
-        },
-      },
-    },
-    {
-      name: 'match_primitives',
-      description: 'Match operation text to curated primitives with scores',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          operation: { type: 'string' },
-        },
-        required: ['operation'],
-      },
-    },
-    {
-      name: 'get_routing_context',
-      description: 'Build memory routing context for orchestrator/thinDispatch',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          operation: { type: 'string' },
-        },
-        required: ['operation'],
-      },
-    },
-    {
-      name: 'get_high_priority_signals',
-      description: 'List all high-priority curated signals',
-      inputSchema: { type: 'object', properties: {} },
-    },
-    {
-      name: 'ingest_feedback',
-      description: 'Record orchestrator routing outcome for meta-inference feedback loop',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          sessionId: { type: 'string' },
-          taskId: { type: 'string' },
-          assignedAgent: { type: 'string' },
-          memorySignals: { type: 'array', items: { type: 'string' } },
-          complexity: { type: 'number' },
-          success: { type: 'boolean' },
-          durationMs: { type: 'number' },
-        },
-        required: ['sessionId', 'taskId', 'assignedAgent', 'success', 'durationMs'],
-      },
-    },
-  ],
+  tools: TOOLS.map((tool) => ({
+    name: tool.name,
+    description: tool.description,
+    inputSchema: tool.inputSchema,
+  })),
 }));
+
+function jsonResult(data: unknown) {
+  return {
+    content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }],
+  };
+}
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
   const a = (args ?? {}) as Record<string, unknown>;
 
   switch (name) {
+    case 'repertoire__get_high_confidence_signals': {
+      const tags = Array.isArray(a.tags)
+        ? a.tags.filter((tag): tag is string => typeof tag === 'string')
+        : undefined;
+      return jsonResult(
+        service.getHighConfidenceSignals({
+          minConfidence:
+            typeof a.minConfidence === 'number' ? a.minConfidence : undefined,
+          tags,
+          limit: typeof a.limit === 'number' ? a.limit : undefined,
+        }),
+      );
+    }
+    case 'repertoire__get_task_confidence': {
+      return jsonResult(
+        service.getTaskConfidence({
+          description: String(a.description),
+          type: typeof a.type === 'string' ? a.type : undefined,
+          id: typeof a.taskId === 'string' ? a.taskId : undefined,
+        }),
+      );
+    }
+    case 'repertoire__search_primitives': {
+      return jsonResult(
+        service.searchPrimitives(String(a.query), {
+          minConfidence:
+            typeof a.minConfidence === 'number' ? a.minConfidence : undefined,
+          limit: typeof a.limit === 'number' ? a.limit : undefined,
+        }),
+      );
+    }
     case 'query_signals': {
       let signals = service.signalsManager.load().signals;
       if (a.tag) signals = signals.filter((s) => s.tags.includes(String(a.tag)));
@@ -93,39 +191,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const matches = service.querySignals(String(a.query));
         signals = matches.map((m) => m.signal);
       }
-      return {
-        content: [{ type: 'text', text: JSON.stringify(signals, null, 2) }],
-      };
+      return jsonResult(signals);
     }
     case 'match_primitives': {
       const matches = service.querySignals(String(a.operation));
-      return {
-        content: [{
-          type: 'text',
-          text: JSON.stringify(
-            matches.map((m) => ({
-              name: m.signal.name,
-              score: m.score,
-              priority: m.signal.priority,
-              definition: m.signal.definition,
-            })),
-            null,
-            2,
-          ),
-        }],
-      };
+      return jsonResult(
+        matches.map((m) => ({
+          name: m.signal.name,
+          score: m.score,
+          priority: m.signal.priority,
+          definition: m.signal.definition,
+        })),
+      );
     }
     case 'get_routing_context': {
-      const ctx = service.buildRoutingContext(String(a.operation));
-      return {
-        content: [{ type: 'text', text: JSON.stringify(ctx, null, 2) }],
-      };
+      return jsonResult(service.buildRoutingContext(String(a.operation)));
     }
     case 'get_high_priority_signals': {
-      const signals = service.getHighPrioritySignals();
-      return {
-        content: [{ type: 'text', text: JSON.stringify(signals, null, 2) }],
-      };
+      return jsonResult(service.getHighPrioritySignals());
     }
     case 'ingest_feedback': {
       const path = service.ingestOrchestratorFeedback({
