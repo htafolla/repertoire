@@ -27,6 +27,7 @@
     "mcp": "node dist/mcp/server.js",
     "test": "vitest run",
     "test:e2e": "vitest run scripts/e2e-confidence-loop.test.ts",
+    "test:mcp": "npm run build && vitest run scripts/test-mcp-stdio.test.ts",
     "test:watch": "vitest"
   },
   "dependencies": {

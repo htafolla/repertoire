@@ -59,9 +59,9 @@ repertoire__get_task_confidence({ description: "TYPE: ontological-trap ...", typ
 ### Manual MCP smoke test
 
 ```bash
-cd repertoire && npm run build
-node dist/mcp/server.js   # stdio MCP — configure in host mcpServers
-npm run query             # CLI ad-hoc confidence query without MCP host
+cd repertoire && npm run test:mcp   # stdio client → MCP server (Hermes path)
+node dist/mcp/server.js            # stdio MCP — configure in host mcpServers
+npm run query                      # CLI ad-hoc confidence query without MCP host
 ```
 
 ---

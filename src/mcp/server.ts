@@ -10,8 +10,18 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { RepertoireService } from '../RepertoireService.js';
+import type { RepertoireServiceOptions } from '../RepertoireService.js';
 
-const service = new RepertoireService();
+function serviceOptionsFromEnv(): RepertoireServiceOptions {
+  const options: RepertoireServiceOptions = {};
+  if (process.env.REPERTOIRE_DATA_DIR) options.dataDir = process.env.REPERTOIRE_DATA_DIR;
+  if (process.env.CURATED_SIGNALS_PATH) options.signalsPath = process.env.CURATED_SIGNALS_PATH;
+  if (process.env.REPERTOIRE_STATE_PATH) options.statePath = process.env.REPERTOIRE_STATE_PATH;
+  if (process.env.REPERTOIRE_LOG_DIR) options.logDir = process.env.REPERTOIRE_LOG_DIR;
+  return options;
+}
+
+const service = new RepertoireService(serviceOptionsFromEnv());
 
 const TOOLS = [
   {

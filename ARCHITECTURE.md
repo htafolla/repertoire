@@ -390,6 +390,7 @@ This path does not depend on `MemoryRoutingProvider` being loaded in the LLM hos
 |-------|---------|----------|
 | Unit tests | `npm test` | Parser, confidence gate, registry, MCP query helpers |
 | E2E harness | `npm run test:e2e` | Full enriched loop + unstructured skip |
+| MCP stdio smoke | `npm run test:mcp` | Hermes-path tool calls over stdio transport |
 | 0xRay integration | `xray` memory-routing + researcher tests | Provider enrichment, complexity boost, MEMORY_ROUTING |
 
 **E2E harness asserts:**
