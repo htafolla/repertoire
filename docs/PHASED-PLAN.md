@@ -41,7 +41,8 @@
 | 4-bridge suit verify | Done | `confirm-suit-all`, per-bridge scripts, CI |
 | GitHub Actions CI | Green | build → test (28) → Grok suit verify |
 | Docs | Live | https://0xrayai.github.io/xray/docs/guides/repertoire |
-| Announce | Drafted | `tweets/v0.1.0-announce.md` — human posts |
+| Announce (primary) | **Posted** 2026-06-18 | https://x.com/Blaze0x1/status/2067704156131934488 |
+| Thread + @0xrayai RT | Open | replies 2–7 + quote RT still optional |
 | Live auto-ingest on new JSONL | Open | A3.1 (0x0 Phase A) |
 | eX0 Hermes bundle | Deferred | Phase 7 |
 
@@ -135,12 +136,13 @@ npm run install:bridges      # native 0xray bridge install
 - [x] 4-bridge suit matrix + CI
 - [x] Announce copy + image (`tweets/`)
 - [x] Docs link live
+- [x] Primary announce posted — [@Blaze0x1 Jun 18](https://x.com/Blaze0x1/status/2067704156131934488)
 
 ### Next (platform — see 0x0 ROADMAP)
 
 - [ ] A3.1 auto-ingest new live JSONL lines
 - [ ] A4.3 live JSONL proof on groover production host
-- [ ] Human: post announce tweets
+- [ ] Thread replies 2–7 + @0xrayai quote RT (optional)
 - [ ] Phase 7 eX0 bundle (after Jelly P1)
 
 ### Later
