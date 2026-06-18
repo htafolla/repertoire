@@ -1,0 +1,185 @@
+{
+  "description": "Curated high-signal primitives and invariants surfaced by Groover inference that are not yet tracked in the Master Index or MCP filters. Each entry includes implementation guidance for autonomous agents.",
+  "last_updated": "2026-06-17T22:40:00.000Z",
+  "source": "meta-inference-2026-06-17-deep",
+  "schema_version": "1.1",
+  "implementation_guidance": {
+    "how_to_use": "Each signal should be registered in the Master Index and evaluated during govern_with_solar calls on ontological-trap classified entries. Use the validation_experiment and evaluation_criteria fields to implement detection logic.",
+    "integration_points": [
+      "Add to inference prompt as optional closure primitives when negative-space analysis surfaces the relevant gap",
+      "Enforce via govern_with_solar on ontological-trap entries (see recommendation #1 and #5)",
+      "Store in curated_signals.json as the source of truth for proposed signals",
+      "Emit consolidated lattices to Master Index after every meta-inference run"
+    ],
+    "priority_order": "Process high-priority signals first when implementing detection and governance enforcement."
+  },
+  "signals": [
+    {
+      "name": "attestation-as-map",
+      "definition": "Attestation should be treated as a directional trust map that obligates the consumer to perform ongoing re-evaluation, rather than a terminating verdict that ends responsibility.",
+      "example_inference_snippet": "Attestation functions as a trust map rather than a conclusive verdict, so the consuming boundary must still execute its own invariant checks...",
+      "tags": [
+        "ontological-trap",
+        "attestation",
+        "consumer-boundary"
+      ],
+      "batches": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "high",
+      "evaluation_criteria": "The inference reply explicitly states that attestation is directional/ongoing rather than final, or criticizes treating signatures as sufficient without consumer-side checks.",
+      "validation_experiment": "Create a test post containing only static attestation metadata with no consumer recheck hook. Run it through govern_with_solar and check whether the result is REJECT or resonanceScore < 0.3.",
+      "master_index_integration": "Should be registered as a first-class signal type. Queries for 'attestation' should surface entries that distinguish map vs verdict semantics.",
+      "implementation_notes": "Add detection logic in the inference prompt for replies that contrast 'map' vs 'verdict' language. Enforce via govern_with_solar on ontological-trap entries."
+    },
+    {
+      "name": "consumption-boundary-revalidation-gate",
+      "definition": "There must be an explicit, mandatory re-validation step of key invariants at every trust-transfer boundary before the receiving agent/system is allowed to consume or act on the artifact.",
+      "example_inference_snippet": "Mandatory re-validation of invariants at every trust-transfer boundary before consumption is permitted.",
+      "tags": [
+        "ontological-trap",
+        "attestation",
+        "consumer-boundary"
+      ],
+      "batches": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "high",
+      "evaluation_criteria": "Reply mentions that re-validation must occur at the consumption boundary or that upstream attestation alone is insufficient without this step.",
+      "validation_experiment": "Instrument a parser/loader boundary with a controlled schema mutation after upstream attestation. Verify the system emits an explicit re-validation obligation record before permitting downstream action.",
+      "master_index_integration": "Store as a required boundary primitive. Master Index queries should be able to filter for entries that have vs have not passed consumption-boundary revalidation.",
+      "implementation_notes": "This should become a required step in the govern_with_solar flow for any ontological-trap classified reply. Add to the inference prompt as a mandatory closure primitive when this gap is detected."
+    },
+    {
+      "name": "parse-mutation-detector",
+      "definition": "A runtime mechanism that detects when parsing or transformation has altered an artifact and triggers fail-closed behavior or explicit re-evaluation of invariants.",
+      "example_inference_snippet": "Runtime mechanism to detect parse transformations and trigger fail-closed or explicit re-evaluation.",
+      "tags": [
+        "ontological-trap",
+        "attestation",
+        "consumer-boundary"
+      ],
+      "batches": [
+        4,
+        6
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "high",
+      "evaluation_criteria": "Reply identifies that a parser or transformation step can silently change meaning and that current attestation does not cover this mutation surface.",
+      "validation_experiment": "Feed the system an attested artifact, apply a controlled parse transformation, and measure whether a fail-closed signal or re-evaluation trigger is emitted within one inference cycle.",
+      "master_index_integration": "Should be queryable as a 'mutation surface' signal. Entries that passed through parse-mutation-detector checks should be distinguishable.",
+      "implementation_notes": "Add to the negative-space analysis step in the inference prompt. When detected, the reply should propose a concrete detector primitive."
+    },
+    {
+      "name": "model-latent-geometry-as-true-invariant",
+      "definition": "The actual durable invariant is the model's latent geometry and attractor structure under adversarial or edge-case routing, not the declared provenance or attestation artifacts.",
+      "example_inference_snippet": "Latent geometry and attractor basins under routing failure as the durable substrate versus declared provenance artifacts.",
+      "tags": [
+        "ontological-trap",
+        "representation",
+        "invariant"
+      ],
+      "batches": [
+        3
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "medium",
+      "evaluation_criteria": "Reply argues that geometry/attractors are more fundamental than declared metadata, especially when provenance is removed or altered.",
+      "validation_experiment": "Remove all declared provenance logs and routing attestations from an agent trace while preserving latent geometry signals under edge probes. Test whether MCP still assigns high resonance based on geometry alone.",
+      "master_index_integration": "Introduce a signal category for 'geometry-based invariants' separate from provenance-based ones.",
+      "implementation_notes": "This is more research-oriented. Add as an optional analysis dimension in the inference prompt for high-stakes ontological-trap cases."
+    },
+    {
+      "name": "criteria_selection_gap",
+      "definition": "The absence of an explicit, auditable mechanism for selecting which criteria or norms are applied during interpretation, allowing external or unstated norms to perform decisive filtering.",
+      "example_inference_snippet": "Absence of an explicit auditable criteria-selection mechanism allowing external norms to perform untracked filtering.",
+      "tags": [
+        "ontological-trap",
+        "criteria",
+        "interpretation"
+      ],
+      "batches": [
+        1
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "medium",
+      "evaluation_criteria": "Reply points out that criteria for including/excluding certain rules or interpretations are not made explicit or auditable.",
+      "validation_experiment": "Present a post containing both internal textual trajectory and an external norm. Measure whether the inference layer emits an explicit criteria_selection_gap primitive and routes it to MCP.",
+      "master_index_integration": "Track as a hermeneutic/interpretation signal. Should be queryable when analyzing interpretation quality.",
+      "implementation_notes": "Add detection in the TYPE classification step. When detected, the reply should surface the gap as a first-class signal."
+    },
+    {
+      "name": "interpreter-mode-boundary-invariant",
+      "definition": "A self-enforcing contract hash or invariant that lives at the parser-consumer trust boundary and must survive any transformation or reinterpretation.",
+      "example_inference_snippet": "Self-enforcing contract hash at parser-consumer trust boundary that survives transformation.",
+      "tags": [
+        "ontological-trap",
+        "attestation",
+        "consumer-boundary"
+      ],
+      "batches": [
+        4
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "high",
+      "evaluation_criteria": "Reply emphasizes that some invariant must be embedded in a way that forces the consumer to recompute or re-validate it after any parsing step.",
+      "validation_experiment": "Design an attestation payload that embeds a contract hash which the consumer must independently recompute after parsing. Verify the system treats failure to recompute as a governance violation.",
+      "master_index_integration": "Register as a boundary-enforcement primitive. Should appear in queries about trust boundaries.",
+      "implementation_notes": "Strong candidate for direct integration into govern_with_solar. When this signal appears, the reply should propose a concrete embedding mechanism."
+    },
+    {
+      "name": "trust-transfer-boundary",
+      "definition": "An explicit, first-class signal that records the obligation to re-validate invariants at each handoff point between agents or systems.",
+      "example_inference_snippet": "Explicit recording of re-validation obligation as a first-class signal at each handoff point.",
+      "tags": [
+        "ontological-trap",
+        "attestation",
+        "consumer-boundary"
+      ],
+      "batches": [
+        7
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "high",
+      "evaluation_criteria": "Reply argues that re-validation obligations must be explicitly recorded and passed along at every trust transfer.",
+      "validation_experiment": "Simulate a multi-hop agent workflow where an attested artifact crosses two trust boundaries. Verify that a trust-transfer-boundary record is created at each hop.",
+      "master_index_integration": "Should be a core boundary primitive. Master Index should support queries for chains of trust-transfer-boundary records.",
+      "implementation_notes": "This is one of the most actionable. Add as a required output primitive when the inference detects a handoff or multi-agent scenario."
+    },
+    {
+      "name": "external_norm_smuggling_risk",
+      "definition": "The risk that external moral intuitions or norms perform decisive but untracked filtering inside a claimed covenantal or internal-context hermeneutic.",
+      "example_inference_snippet": "External moral intuitions performing decisive untracked filtering inside claimed covenantal-context hermeneutics.",
+      "tags": [
+        "ontological-trap",
+        "criteria",
+        "interpretation"
+      ],
+      "batches": [
+        1
+      ],
+      "first_seen": "2026-06-17",
+      "status": "proposed",
+      "priority": "medium",
+      "evaluation_criteria": "Reply identifies that external norms are being applied without being made explicit or submitted to the internal logic of the text/framework.",
+      "validation_experiment": "Present a covenantal-context post containing both internal textual trajectory and an external norm. Check whether the inference layer emits an explicit external_norm_smuggling_risk primitive.",
+      "master_index_integration": "Track as an interpretation-risk signal. Useful for auditing hermeneutic consistency.",
+      "implementation_notes": "Primarily relevant for posts with strong interpretive/hermeneutic dimensions. Add as a TYPE sub-classification when detected."
+    }
+  ]
+}

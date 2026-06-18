@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "repertoire": {
+      "command": "node",
+      "args": ["/absolute/path/to/repertoire/dist/mcp/server.js"],
+      "env": {
+        "CURATED_SIGNALS_PATH": "/absolute/path/to/repertoire/data/curated_signals.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repertoire.0xray.ai/schemas/curated-signal.schema.json",
+  "title": "CuratedSignal",
+  "type": "object",
+  "required": [
+    "name",
+    "definition",
+    "tags",
+    "priority",
+    "evaluation_criteria",
+    "validation_experiment",
+    "master_index_integration",
+    "implementation_notes"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$",
+      "description": "Kebab-case primitive identifier"
+    },
+    "definition": {
+      "type": "string",
+      "minLength": 10
+    },
+    "example_inference_snippet": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "batches": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1 }
+    },
+    "first_seen": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["proposed", "validated", "integrated", "deprecated"]
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["high", "medium", "low"]
+    },
+    "evaluation_criteria": {
+      "type": "string",
+      "minLength": 10
+    },
+    "validation_experiment": {
+      "type": "string",
+      "minLength": 10
+    },
+    "master_index_integration": {
+      "type": "string",
+      "minLength": 10
+    },
+    "implementation_notes": {
+      "type": "string",
+      "minLength": 10
+    }
+  },
+  "additionalProperties": false
+}

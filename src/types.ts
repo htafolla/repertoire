@@ -1,0 +1,145 @@
+export type InferenceSource = 'groover' | 'xray' | 'dynamo' | 'orchestrator';
+
+export type InferenceType =
+  | 'theoretical'
+  | 'temporal-drift'
+  | 'practical-workflow'
+  | 'ontological-trap'
+  | 'provenance-failure';
+
+export type SignalPriority = 'high' | 'medium' | 'low';
+
+export type SignalStatus = 'proposed' | 'validated' | 'integrated' | 'deprecated';
+
+export interface DynamoResult {
+  result?: {
+    recommendation?: 'PASS' | 'NEEDS_REVISION' | 'REJECT' | string;
+    resonanceScore?: number;
+  };
+  matchedPrimitives?: string[];
+}
+
+export interface InferenceEntry {
+  timestamp: string;
+  source: InferenceSource;
+  post_id?: string;
+  post_title?: string;
+  comment_id?: string;
+  session_id?: string;
+  inference: string;
+  public_reply?: string;
+  inference_type?: InferenceType;
+  dynamo_result?: DynamoResult;
+  repertoire_signals?: string[];
+}
+
+export interface CuratedSignal {
+  name: string;
+  definition: string;
+  example_inference_snippet?: string;
+  tags: string[];
+  batches?: number[];
+  first_seen?: string;
+  status?: SignalStatus;
+  priority: SignalPriority;
+  evaluation_criteria: string;
+  validation_experiment: string;
+  master_index_integration: string;
+  implementation_notes: string;
+}
+
+export interface CuratedSignalsFile {
+  description: string;
+  schema_version: string;
+  last_updated: string;
+  source?: string;
+  implementation_guidance?: {
+    how_to_use: string;
+    integration_points: string[];
+    priority_order: string;
+  };
+  signals: CuratedSignal[];
+}
+
+export interface InferenceState {
+  processedCommentIds: string[];
+  processedSessionIds: string[];
+  lastRun: string | null;
+}
+
+export interface SynthesisReport {
+  entriesProcessed: number;
+  batchResults: string[];
+  finalReport: string;
+  timestamp: string;
+  dynamoStats: {
+    pass: number;
+    reject: number;
+    avgResonance: number | null;
+  };
+}
+
+export interface SignalMatch {
+  signal: CuratedSignal;
+  score: number;
+  matchedOn: Array<'name' | 'tag' | 'definition' | 'criteria' | 'snippet'>;
+}
+
+export interface RepertoireRoutingContext {
+  matchedSignals: string[];
+  matchedTags: string[];
+  ontologicalTrapDetected: boolean;
+  synthesisAvailable: boolean;
+  signalMatches: SignalMatch[];
+}
+
+export interface RepertoireInheritedContext {
+  matchedSignals: Array<{ name: string; definition: string; priority: SignalPriority }>;
+  synthesisExcerpt?: string;
+  governanceStats?: { passRate: number; avgResonance: number };
+  ontologicalTrapSignals: string[];
+}
+
+export interface OrchestratorFeedbackEntry {
+  timestamp: string;
+  sessionId: string;
+  taskId: string;
+  assignedAgent: string;
+  repertoireSignals: string[];
+  complexity: number;
+  success: boolean;
+  durationMs: number;
+  dynamoResult?: DynamoResult;
+}
+
+/** Minimal types mirroring 0xRay orchestrator — kept local to avoid hard dependency */
+export interface AgentCapability {
+  capabilities: string[];
+  complexityThreshold: number;
+  concurrentTasks: number;
+  repertoireSignals?: string[];
+  repertoireTags?: string[];
+}
+
+export interface OrchestrationTask {
+  id: string;
+  description: string;
+  type: string;
+  priority?: 'critical' | 'high' | 'medium' | 'low';
+  dependencies?: string[];
+  estimatedComplexity?: number;
+  metadata?: {
+    repertoireSignals?: string[];
+    matchedPrimitives?: string[];
+    synthesisContext?: string;
+    ontologicalTrapDetected?: boolean;
+  };
+}
+
+export interface ExecutionPlan {
+  tasks: OrchestrationTask[];
+  strategy: 'parallel' | 'sequential' | 'optimized';
+  agentAssignments: Map<string, OrchestrationTask[]>;
+  estimatedDuration: number;
+  repertoireContext?: RepertoireInheritedContext;
+}

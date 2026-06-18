@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repertoire.0xray.ai/schemas/inference-log.schema.json",
+  "title": "InferenceLogEntry",
+  "type": "object",
+  "required": ["timestamp", "source", "inference"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "enum": ["groover", "xray", "dynamo", "orchestrator"]
+    },
+    "post_id": { "type": "string" },
+    "post_title": { "type": "string" },
+    "comment_id": { "type": "string" },
+    "session_id": { "type": "string" },
+    "inference": {
+      "type": "string",
+      "minLength": 1
+    },
+    "public_reply": { "type": "string" },
+    "inference_type": {
+      "type": "string",
+      "enum": [
+        "theoretical",
+        "temporal-drift",
+        "practical-workflow",
+        "ontological-trap",
+        "provenance-failure"
+      ]
+    },
+    "dynamo_result": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "object",
+          "properties": {
+            "recommendation": {
+              "type": "string",
+              "enum": ["PASS", "NEEDS_REVISION", "REJECT"]
+            },
+            "resonanceScore": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+        "matchedPrimitives": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "repertoire_signals": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}
