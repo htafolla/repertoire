@@ -22,6 +22,7 @@
     "build": "tsc",
     "ingest": "node --import tsx scripts/ingest.ts",
     "meta-inference": "node --import tsx scripts/run-meta-inference.ts",
+    "pipeline": "node --import tsx scripts/run-pipeline.ts",
     "query": "node --import tsx scripts/query-signals.ts",
     "mcp": "node dist/mcp/server.js",
     "test": "vitest run",
