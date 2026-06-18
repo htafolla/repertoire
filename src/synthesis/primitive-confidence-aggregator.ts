@@ -1,7 +1,5 @@
 import type { InferenceEntry, WeightedPrimitive } from '../types.js';
 
-const LEGACY_FALLBACK_CONFIDENCE = 0.5;
-
 export function aggregateWeightedPrimitives(entries: InferenceEntry[]): WeightedPrimitive[] {
   const totals = new Map<
     string,
@@ -9,14 +7,13 @@ export function aggregateWeightedPrimitives(entries: InferenceEntry[]): Weighted
   >();
 
   for (const entry of entries) {
-    const confidenceMap = entry.match_confidence ?? {};
-    const primitiveNames =
-      entry.matched_primitives ??
-      entry.repertoire_signals ??
-      Object.keys(confidenceMap);
+    const confidenceMap = entry.match_confidence;
+    if (!confidenceMap || !entry.matched_primitives?.length) continue;
 
-    for (const name of primitiveNames) {
-      const confidence = confidenceMap[name] ?? LEGACY_FALLBACK_CONFIDENCE;
+    for (const name of entry.matched_primitives) {
+      const confidence = confidenceMap[name];
+      if (typeof confidence !== 'number') continue;
+
       const current = totals.get(name) ?? { confidenceSum: 0, count: 0, forcedCount: 0 };
       current.confidenceSum += confidence;
       current.count += 1;

@@ -115,7 +115,7 @@ export interface SignalMatch {
 export interface SignalConfidenceDetail {
   name: string;
   confidence: number;
-  source: 'registry' | 'text-match' | 'task-metadata';
+  source: 'registry' | 'task-metadata';
   matchedVia?: SignalMatch['matchedOn'];
 }
 

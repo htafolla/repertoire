@@ -84,14 +84,12 @@ export class XraySessionIngester {
     ].filter(Boolean);
 
     const inference = inferenceParts.join('\n');
-    const matches = this.signalsManager.matchByText(inference, 2);
 
     return {
       timestamp: session.timestamp,
       source: 'xray',
       session_id: session.sessionId,
       inference,
-      repertoire_signals: matches.map((m) => m.signal.name),
     };
   }
 

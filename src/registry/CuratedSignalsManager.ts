@@ -141,16 +141,6 @@ export class CuratedSignalsManager {
     return matches.sort((a, b) => b.score - a.score);
   }
 
-  /**
-   * Convert legacy text-match scores (2–10+) into a 0–1 confidence estimate.
-   */
-  signalMatchesToPrimitiveMatches(matches: SignalMatch[]): PrimitiveMatch[] {
-    return matches.map((match) => ({
-      name: match.signal.name,
-      confidence: Math.min(1, match.score / 10),
-    }));
-  }
-
   recordPrimitiveObservations(
     matches: PrimitiveMatch[],
     options: { governanceForced?: boolean; minConfidence?: number } = {},

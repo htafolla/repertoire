@@ -8,6 +8,13 @@ const VALID_INFERENCE_TYPES: InferenceType[] = [
   'provenance-failure',
 ];
 
+export class EnrichedGrooverLogError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EnrichedGrooverLogError';
+  }
+}
+
 export interface ParsedGrooverFields {
   matchedPrimitives: string[];
   matchConfidence: Record<string, number>;
@@ -36,44 +43,42 @@ export function parseMatchConfidence(raw: unknown): Record<string, number> {
   return confidence;
 }
 
-export function parseMatchedPrimitives(
-  raw: Record<string, unknown>,
-  matchConfidence: Record<string, number>,
-): string[] {
-  const fromField = raw.matched_primitives;
-  if (Array.isArray(fromField)) {
-    return fromField.filter((value): value is string => typeof value === 'string');
+export function isEnrichedGrooverLog(raw: Record<string, unknown>): boolean {
+  if (!Array.isArray(raw.matched_primitives) || raw.matched_primitives.length === 0) {
+    return false;
   }
 
-  const fromRepertoire = raw.repertoire_signals;
-  if (Array.isArray(fromRepertoire)) {
-    return fromRepertoire.filter((value): value is string => typeof value === 'string');
-  }
-
-  const dynamo = raw.dynamo_result as Record<string, unknown> | undefined;
-  const fromDynamo = dynamo?.matchedPrimitives;
-  if (Array.isArray(fromDynamo)) {
-    return fromDynamo.filter((value): value is string => typeof value === 'string');
-  }
-
-  return Object.keys(matchConfidence);
+  const matchConfidence = parseMatchConfidence(raw.match_confidence);
+  return (raw.matched_primitives as unknown[]).every(
+    (name) => typeof name === 'string' && typeof matchConfidence[name] === 'number',
+  );
 }
 
 export function toPrimitiveMatches(
   matchedPrimitives: string[],
   matchConfidence: Record<string, number>,
-  fallbackConfidence = 0.5,
 ): PrimitiveMatch[] {
-  return matchedPrimitives.map((name) => ({
-    name,
-    confidence: matchConfidence[name] ?? fallbackConfidence,
-  }));
+  return matchedPrimitives.map((name) => {
+    const confidence = matchConfidence[name];
+    if (typeof confidence !== 'number') {
+      throw new EnrichedGrooverLogError(`Missing match_confidence for primitive: ${name}`);
+    }
+    return { name, confidence };
+  });
 }
 
 export function parseGrooverLogFields(raw: Record<string, unknown>): ParsedGrooverFields {
+  if (!isEnrichedGrooverLog(raw)) {
+    throw new EnrichedGrooverLogError(
+      'Groover log entry must include matched_primitives and match_confidence for every primitive',
+    );
+  }
+
   const inference = String(raw.inference ?? '');
   const matchConfidence = parseMatchConfidence(raw.match_confidence);
-  const matchedPrimitives = parseMatchedPrimitives(raw, matchConfidence);
+  const matchedPrimitives = (raw.matched_primitives as string[]).filter(
+    (value): value is string => typeof value === 'string',
+  );
   const primitiveMatches = toPrimitiveMatches(matchedPrimitives, matchConfidence);
 
   const inferenceType =
@@ -98,17 +103,11 @@ export function parseGrooverLogFields(raw: Record<string, unknown>): ParsedGroov
 
 export function buildInferenceEntryFromGrooverLog(
   raw: Record<string, unknown>,
-  fallbackMatches?: PrimitiveMatch[],
 ): InferenceEntry {
   const parsed = parseGrooverLogFields(raw);
-  const primitiveMatches =
-    parsed.primitiveMatches.length > 0
-      ? parsed.primitiveMatches
-      : (fallbackMatches ?? []);
-
-  const matchedPrimitives = primitiveMatches.map((match) => match.name);
+  const matchedPrimitives = parsed.primitiveMatches.map((match) => match.name);
   const matchConfidence = Object.fromEntries(
-    primitiveMatches.map((match) => [match.name, match.confidence]),
+    parsed.primitiveMatches.map((match) => [match.name, match.confidence]),
   );
 
   return {

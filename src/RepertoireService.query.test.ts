@@ -69,14 +69,15 @@ describe('RepertoireService MCP query helpers', () => {
     expect(context.signals.some((entry) => entry.name === 'attestation-as-map')).toBe(true);
   });
 
-  it('searches primitives with confidence scores', () => {
+  it('searches primitives using registry observation_stats only', () => {
     setupService();
     const results = service.searchPrimitives('attestation-as-map ontological-trap', {
-      minConfidence: 0.5,
+      minConfidence: 0.55,
       limit: 3,
     });
 
     expect(results[0].name).toBe('attestation-as-map');
-    expect(results[0].confidence).toBeGreaterThanOrEqual(0.5);
+    expect(results[0].confidence).toBeGreaterThanOrEqual(0.55);
+    expect(results[0].observationCount).toBe(2);
   });
 });

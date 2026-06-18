@@ -58,7 +58,7 @@ function rankByOccurrence(entries: InferenceEntry[]): Array<{ name: string; coun
   const counts = new Map<string, number>();
 
   for (const entry of entries) {
-    const names = entry.matched_primitives ?? entry.repertoire_signals ?? [];
+    const names = entry.matched_primitives ?? [];
     for (const name of names) {
       counts.set(name, (counts.get(name) ?? 0) + 1);
     }
@@ -69,19 +69,16 @@ function rankByOccurrence(entries: InferenceEntry[]): Array<{ name: string; coun
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
-function summarizeEntryFormat(entries: InferenceEntry[]) {
-  const enriched = entries.filter(
+function summarizeEntries(entries: InferenceEntry[]) {
+  const withConfidence = entries.filter(
     (entry) =>
-      entry.match_confidence !== undefined ||
-      entry.governance_forced !== undefined ||
+      entry.match_confidence !== undefined &&
       (entry.matched_primitives?.length ?? 0) > 0,
   ).length;
 
   return {
     total: entries.length,
-    enriched,
-    legacy: entries.length - enriched,
-    enrichedPct: entries.length > 0 ? ((enriched / entries.length) * 100).toFixed(1) : '0.0',
+    withConfidence,
   };
 }
 
@@ -168,9 +165,9 @@ async function main(): Promise<void> {
   );
 
   const allEntries = loadInferenceEntries('logs/groover-inference');
-  const formatSummary = summarizeEntryFormat(allEntries);
+  const entrySummary = summarizeEntries(allEntries);
   console.log(
-    `\nLog format: total=${formatSummary.total} enriched=${formatSummary.enriched} legacy=${formatSummary.legacy} (${formatSummary.enrichedPct}% enriched)`,
+    `\nStored entries: total=${entrySummary.total} with_confidence=${entrySummary.withConfidence}`,
   );
 
   const comparison = compareRankings(allEntries, 12);
@@ -255,7 +252,7 @@ async function main(): Promise<void> {
     timestamp: new Date().toISOString(),
     sourceDir: options.sourceDir,
     ingest,
-    formatSummary,
+    entrySummary,
     promotionEvents,
     rankingComparison: comparison,
     metaInference: metaReport

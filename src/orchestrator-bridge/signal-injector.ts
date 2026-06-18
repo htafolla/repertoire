@@ -27,10 +27,12 @@ export class SignalInjector {
       matches.some((match) => match.signal.tags.includes('ontological-trap'));
 
     const signalConfidences = Object.fromEntries(
-      matches.map((match) => [
-        match.signal.name,
-        resolveSignalConfidence(match.signal.name, this.signalsManager, match),
-      ]),
+      matches
+        .map((match) => {
+          const confidence = resolveSignalConfidence(match.signal.name, this.signalsManager);
+          return confidence === null ? null : [match.signal.name, confidence];
+        })
+        .filter((entry): entry is [string, number] => entry !== null),
     );
 
     const confidenceValues = Object.values(signalConfidences);
@@ -45,8 +47,7 @@ export class SignalInjector {
     const highConfidenceTrapPresent =
       ontologicalTrapDetected &&
       trapSignals.some(
-        (match) =>
-          (signalConfidences[match.signal.name] ?? 0) >= DEFAULT_MIN_CONFIDENCE_GATE,
+        (match) => (signalConfidences[match.signal.name] ?? 0) >= DEFAULT_MIN_CONFIDENCE_GATE,
       );
 
     return {
@@ -132,7 +133,8 @@ export class SignalInjector {
       ) {
         return sum;
       }
-      const confidence = repertoireContext.signalConfidences[signalName] ?? 0.5;
+      const confidence = repertoireContext.signalConfidences[signalName];
+      if (confidence === undefined) return sum;
       return sum + confidence;
     }, 0);
 
@@ -142,10 +144,7 @@ export class SignalInjector {
 
     const trapBoost = confidenceContext
       ? confidenceWeightedAgentBoost(agent, confidenceContext)
-      : repertoireContext.highConfidenceTrapPresent &&
-          ['architect', 'security-auditor', 'researcher'].includes(agent)
-        ? 15
-        : 0;
+      : 0;
 
     return (
       capMatch * 10 +
@@ -168,15 +167,7 @@ export class SignalInjector {
       return applyConfidenceComplexityBoost(baseScore, confidenceContext);
     }
 
-    let adjusted = baseScore;
-
-    if (context.highConfidenceTrapPresent) adjusted += 18;
-    else if (context.ontologicalTrapDetected) adjusted += 12;
-    if (context.matchedSignals.length >= 2) adjusted += 8;
-    if (context.synthesisAvailable) adjusted -= 5;
-    if (context.matchedTags.includes('provenance-failure')) adjusted += 8;
-
-    return Math.min(Math.max(Math.round(adjusted), 1), 100);
+    return baseScore;
   }
 
   private getSynthesisExcerpt(maxChars: number): string | undefined {

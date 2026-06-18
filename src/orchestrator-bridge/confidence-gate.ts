@@ -2,25 +2,26 @@ import {
   CuratedSignalsManager,
   DEFAULT_PROMOTION_MIN_CONFIDENCE,
 } from '../registry/CuratedSignalsManager.js';
-import type { OrchestrationTask, SignalMatch, TaskConfidenceContext } from '../types.js';
+import type { OrchestrationTask, TaskConfidenceContext } from '../types.js';
 
 export const DEFAULT_MIN_CONFIDENCE_GATE = DEFAULT_PROMOTION_MIN_CONFIDENCE;
-export const LEGACY_FALLBACK_CONFIDENCE = 0.5;
 export const TRAP_CAPABLE_AGENTS = ['architect', 'security-auditor', 'researcher'] as const;
 
 export function resolveSignalConfidence(
   signalName: string,
   signalsManager: CuratedSignalsManager,
-  textMatch?: SignalMatch,
-): number {
+  metadataConfidence?: number,
+): number | null {
+  if (typeof metadataConfidence === 'number') {
+    return metadataConfidence;
+  }
+
   const signal = signalsManager.getByName(signalName);
   if (signal?.observation_stats?.avg_confidence !== undefined) {
     return signal.observation_stats.avg_confidence;
   }
-  if (textMatch) {
-    return Math.min(1, textMatch.score / 10);
-  }
-  return LEGACY_FALLBACK_CONFIDENCE;
+
+  return null;
 }
 
 export function getConfidenceForTask(
@@ -36,19 +37,23 @@ export function getConfidenceForTask(
 
   const metadataConfidences = task.metadata?.memorySignalConfidences ?? {};
   const signals = textMatches
-    .map((match) => ({
-      name: match.signal.name,
-      confidence:
-        metadataConfidences[match.signal.name] ??
-        resolveSignalConfidence(match.signal.name, signalsManager, match),
-      source: 'text-match' as const,
-      matchedVia: match.matchedOn,
-    }))
-    .filter(
-      (entry) =>
-        entry.confidence >= DEFAULT_MIN_CONFIDENCE_GATE ||
-        (trapDetected && entry.name && signalsManager.getByName(entry.name)?.tags.includes('ontological-trap')),
-    );
+    .map((match) => {
+      const confidence = resolveSignalConfidence(
+        match.signal.name,
+        signalsManager,
+        metadataConfidences[match.signal.name],
+      );
+      if (confidence === null) return null;
+
+      return {
+        name: match.signal.name,
+        confidence,
+        source: 'registry' as const,
+        matchedVia: match.matchedOn,
+      };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    .filter((entry) => entry.confidence >= DEFAULT_MIN_CONFIDENCE_GATE);
 
   const trapSignals = signals.filter((entry) =>
     signalsManager.getByName(entry.name)?.tags.includes('ontological-trap'),
@@ -67,13 +72,9 @@ export function getConfidenceForTask(
   let complexityBoost = 0;
   if (highConfidenceTrapPresent) {
     complexityBoost += Math.round(10 + maxConfidence * 10);
-  } else if (trapDetected) {
-    complexityBoost += 8;
   }
 
-  const highConfidenceCount = signals.filter(
-    (entry) => entry.confidence >= DEFAULT_MIN_CONFIDENCE_GATE,
-  ).length;
+  const highConfidenceCount = signals.length;
   if (highConfidenceCount >= 2) complexityBoost += 5;
 
   return {

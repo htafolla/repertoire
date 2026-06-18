@@ -8,14 +8,18 @@ if (!query) {
 }
 
 const service = new RepertoireService();
-const matches = service.querySignals(query);
+const matches = service.searchPrimitives(query, { limit: 10 });
+const taskConfidence = service.getTaskConfidence({ description: query, type: 'general' });
 const routing = service.buildRoutingContext(query);
 
 console.log('\n=== Matched Signals ===');
-for (const m of matches) {
-  console.log(`• ${m.signal.name} (score=${m.score}, priority=${m.signal.priority})`);
-  console.log(`  ${m.signal.definition.slice(0, 120)}...`);
+for (const match of matches) {
+  console.log(`• ${match.name} (confidence=${match.confidence.toFixed(3)}, priority=${match.priority})`);
+  console.log(`  ${match.definition.slice(0, 120)}...`);
 }
+
+console.log('\n=== Task Confidence ===');
+console.log(JSON.stringify(taskConfidence, null, 2));
 
 console.log('\n=== Routing Context ===');
 console.log(JSON.stringify(routing, null, 2));

@@ -49,17 +49,6 @@ const ENRICHED_LOG_ENTRIES = [
   },
 ];
 
-const LEGACY_LOG_ENTRY = {
-  timestamp: '2026-06-18T13:00:00.000Z',
-  source: 'groover',
-  post_id: 'legacy-post-1',
-  post_title: 'Legacy log without confidence fields',
-  comment_id: 'legacy-comment-1',
-  inference:
-    'TYPE: ontological-trap\nUnnamed negative-space gap with no structured primitive mapping or confidence metadata.',
-  public_reply: 'Legacy reply text without enriched logging fields.',
-};
-
 interface TestWorkspace {
   root: string;
   service: RepertoireService;
@@ -205,11 +194,10 @@ describe('E2E confidence loop (simulated)', () => {
     expect(searchResults[0]?.name).toBe(TRAP_SIGNAL);
 
     const capabilities = service.enhanceCapabilities(createAgentCapabilities());
-    const trapComplexity = 45;
     const selectedAgent = service.selectAgent(
       capabilities,
       ['governance'],
-      trapComplexity,
+      45,
       trapTaskDescription(),
     );
     expect(selectedAgent).toBe('architect');
@@ -219,34 +207,23 @@ describe('E2E confidence loop (simulated)', () => {
     expect(thinDispatch.adjustedScore).toBeGreaterThan(30);
   });
 
-  it('handles legacy logs gracefully without promotion or high-confidence trap routing', () => {
+  it('skips unstructured Groover logs during ingest', () => {
     workspace = createTestWorkspace();
     const { service, sourceDir } = workspace;
 
-    writeGrooverLogs(sourceDir, [LEGACY_LOG_ENTRY]);
+    writeGrooverLogs(sourceDir, [
+      {
+        timestamp: '2026-06-18T13:00:00.000Z',
+        comment_id: 'unstructured-1',
+        post_id: 'unstructured-post-1',
+        inference: 'TYPE: ontological-trap\nNo matched_primitives or match_confidence fields.',
+        public_reply: 'Unstructured reply.',
+      },
+    ]);
+
     const ingest = service.ingestGrooverLogs(sourceDir);
-
-    expect(ingest.imported).toBe(1);
+    expect(ingest.imported).toBe(0);
+    expect(ingest.skipped).toBe(1);
     expect(ingest.promoted).toHaveLength(0);
-
-    const signal = service.signalsManager.getByName(TRAP_SIGNAL);
-    expect(signal?.observation_stats).toBeUndefined();
-
-    const taskConfidence = service.getTaskConfidence({
-      description: 'TYPE: ontological-trap unnamed negative-space gap',
-      type: 'governance',
-    });
-    expect(taskConfidence.ontologicalTrapDetected).toBe(true);
-    expect(taskConfidence.highConfidenceTrapPresent).toBe(false);
-    expect(taskConfidence.complexityBoost).toBe(8);
-
-    const capabilities = service.enhanceCapabilities(createAgentCapabilities());
-    const selectedAgent = service.selectAgent(
-      capabilities,
-      ['governance'],
-      30,
-      LEGACY_LOG_ENTRY.inference,
-    );
-    expect(['architect', 'code-reviewer']).toContain(selectedAgent);
   });
 });

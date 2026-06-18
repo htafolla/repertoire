@@ -1,7 +1,11 @@
 import { readFileSync, appendFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { CuratedSignalsManager } from '../registry/CuratedSignalsManager.js';
-import { buildInferenceEntryFromGrooverLog } from './groover-log-parser.js';
+import {
+  buildInferenceEntryFromGrooverLog,
+  EnrichedGrooverLogError,
+  isEnrichedGrooverLog,
+} from './groover-log-parser.js';
 import type { InferenceEntry } from '../types.js';
 
 export interface GrooverIngesterOptions {
@@ -52,20 +56,28 @@ export class GrooverLogIngester {
         if (!line) continue;
         try {
           const raw = JSON.parse(line) as Record<string, unknown>;
+          if (!isEnrichedGrooverLog(raw)) {
+            skipped++;
+            continue;
+          }
+
           const id = (raw.comment_id ?? raw.post_id) as string | undefined;
           if (id && existingIds.has(id)) {
             skipped++;
             continue;
           }
 
-          const entry = this.normalizeEntry(raw);
+          const entry = buildInferenceEntryFromGrooverLog(raw);
           const targetFile = join(this.targetDir, basename(file));
           appendFileSync(targetFile, JSON.stringify(entry) + '\n');
           this.recordObservations(entry);
 
           if (id) existingIds.add(id);
           imported++;
-        } catch {
+        } catch (error) {
+          if (!(error instanceof EnrichedGrooverLogError)) {
+            throw error;
+          }
           skipped++;
         }
       }
@@ -78,29 +90,14 @@ export class GrooverLogIngester {
     return { imported, skipped, promoted };
   }
 
-  private normalizeEntry(raw: Record<string, unknown>): InferenceEntry {
-    const hasGrooverConfidence =
-      raw.match_confidence !== undefined ||
-      raw.matched_primitives !== undefined ||
-      raw.governance_forced !== undefined;
-
-    if (hasGrooverConfidence) {
-      return buildInferenceEntryFromGrooverLog(raw);
-    }
-
-    const inference = String(raw.inference ?? '');
-    const fallbackMatches = this.signalsManager.signalMatchesToPrimitiveMatches(
-      this.signalsManager.matchInferenceEntry(inference),
-    );
-
-    return buildInferenceEntryFromGrooverLog(raw, fallbackMatches);
-  }
-
   private recordObservations(entry: InferenceEntry): void {
-    const matches = (entry.matched_primitives ?? []).map((name) => ({
-      name,
-      confidence: entry.match_confidence?.[name] ?? 0.5,
-    }));
+    const matches = (entry.matched_primitives ?? []).map((name) => {
+      const confidence = entry.match_confidence?.[name];
+      if (typeof confidence !== 'number') {
+        throw new EnrichedGrooverLogError(`Missing match_confidence for primitive: ${name}`);
+      }
+      return { name, confidence };
+    });
 
     if (matches.length === 0) return;
 
@@ -122,7 +119,7 @@ export class GrooverLogIngester {
           const id = e.comment_id ?? e.post_id ?? e.session_id;
           if (id) ids.add(id);
         } catch {
-          // skip
+          // skip malformed
         }
       }
     }

@@ -1,8 +1,30 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildInferenceEntryFromGrooverLog,
+  EnrichedGrooverLogError,
+  isEnrichedGrooverLog,
   parseGrooverLogFields,
 } from './groover-log-parser.js';
+
+describe('isEnrichedGrooverLog', () => {
+  it('accepts entries with matched_primitives and per-primitive match_confidence', () => {
+    expect(
+      isEnrichedGrooverLog({
+        matched_primitives: ['attestation-as-map'],
+        match_confidence: { 'attestation-as-map': 0.92 },
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects entries without structured confidence', () => {
+    expect(
+      isEnrichedGrooverLog({
+        matched_primitives: ['attestation-as-map'],
+        inference: 'TYPE: ontological-trap',
+      }),
+    ).toBe(false);
+  });
+});
 
 describe('parseGrooverLogFields', () => {
   it('parses enriched Groover log fields', () => {
@@ -26,14 +48,12 @@ describe('parseGrooverLogFields', () => {
     expect(parsed.inferenceType).toBe('ontological-trap');
   });
 
-  it('falls back to repertoire_signals when matched_primitives is absent', () => {
-    const parsed = parseGrooverLogFields({
-      inference: 'legacy entry',
-      repertoire_signals: ['attestation-as-map'],
-      match_confidence: { 'attestation-as-map': 0.9 },
-    });
-
-    expect(parsed.matchedPrimitives).toEqual(['attestation-as-map']);
+  it('throws when enriched fields are missing', () => {
+    expect(() =>
+      parseGrooverLogFields({
+        inference: 'TYPE: ontological-trap',
+      }),
+    ).toThrow(EnrichedGrooverLogError);
   });
 });
 

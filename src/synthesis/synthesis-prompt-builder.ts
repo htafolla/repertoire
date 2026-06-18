@@ -21,11 +21,13 @@ export class SynthesisPromptBuilder {
 
     const entryBlocks = entries
       .map((e, idx) => {
-        const primitiveSummary = (e.matched_primitives ?? e.repertoire_signals ?? [])
+        const primitiveSummary = (e.matched_primitives ?? [])
           .map((name) => {
             const confidence = e.match_confidence?.[name];
-            return confidence === undefined ? name : `${name}(${confidence.toFixed(2)})`;
+            if (confidence === undefined) return null;
+            return `${name}(${confidence.toFixed(2)})`;
           })
+          .filter((value): value is string => value !== null)
           .join(', ');
 
         return `

@@ -14,7 +14,6 @@ import type {
   AgentCapability,
   CuratedSignal,
   ExecutionPlan,
-  InferenceEntry,
   OrchestrationTask,
   OrchestratorFeedbackEntry,
   RepertoireInheritedContext,
@@ -57,8 +56,6 @@ export class RepertoireService {
     this.feedbackIngester = new OrchestratorFeedbackIngester();
   }
 
-  // --- Ingestion ---
-
   ingestGrooverLogs(sourceDir: string): { imported: number; skipped: number; promoted: string[] } {
     const ingester = new GrooverLogIngester({
       sourceDir,
@@ -81,13 +78,9 @@ export class RepertoireService {
     return this.feedbackIngester.ingest(entry);
   }
 
-  // --- Synthesis ---
-
   async runMetaInference(): Promise<SynthesisReport | null> {
     return this.metaInference.run();
   }
-
-  // --- Orchestrator enrichment (0xRay integration surface) ---
 
   enhanceCapabilities(
     base: Map<string, AgentCapability>,
@@ -137,21 +130,11 @@ export class RepertoireService {
     );
   }
 
-  // --- Governance ---
-
   createTrapEnforcer(governFn: GovernWithSolarFn): OntologicalTrapEnforcer {
     return new OntologicalTrapEnforcer({
       signalsManager: this.signalsManager,
       governFn,
     });
-  }
-
-  querySignals(text: string) {
-    return this.signalsManager.matchByText(text);
-  }
-
-  getHighPrioritySignals() {
-    return this.signalsManager.getHighPrioritySignals();
   }
 
   getHighConfidenceSignals(options: {
@@ -163,15 +146,16 @@ export class RepertoireService {
     const limit = options.limit ?? 20;
     const tagFilter = options.tags?.map((tag) => tag.toLowerCase());
 
-    const signals = this.signalsManager
+    return this.signalsManager
       .getSignalsAboveConfidence(minConfidence)
       .filter((signal) => {
+        if (!signal.observation_stats) return false;
         if (!tagFilter?.length) return true;
         return signal.tags.some((tag) => tagFilter.includes(tag.toLowerCase()));
       })
       .map((signal) => ({
         ...signal,
-        effectiveConfidence: signal.observation_stats?.avg_confidence ?? DEFAULT_MIN_CONFIDENCE_GATE,
+        effectiveConfidence: signal.observation_stats!.avg_confidence,
       }))
       .sort(
         (a, b) =>
@@ -180,8 +164,6 @@ export class RepertoireService {
             (a.observation_stats?.observation_count ?? 0),
       )
       .slice(0, limit);
-
-    return signals;
   }
 
   getTaskConfidence(input: {
@@ -203,34 +185,35 @@ export class RepertoireService {
   ): Array<{
     name: string;
     confidence: number;
-    score: number;
     priority: string;
     definition: string;
     tags: string[];
     status?: string;
-    observationCount?: number;
+    observationCount: number;
   }> {
-    const minConfidence = options.minConfidence ?? 0;
+    const minConfidence = options.minConfidence ?? DEFAULT_MIN_CONFIDENCE_GATE;
     const limit = options.limit ?? 10;
     const matches = this.signalsManager.matchByText(query, 2);
 
     return matches
       .map((match) => {
-        const registryConfidence = match.signal.observation_stats?.avg_confidence;
-        const confidence = registryConfidence ?? Math.min(1, match.score / 10);
+        const stats = match.signal.observation_stats;
+        const confidence = stats?.avg_confidence;
+        if (stats === undefined || confidence === undefined) return null;
+
         return {
           name: match.signal.name,
           confidence,
-          score: match.score,
           priority: match.signal.priority,
           definition: match.signal.definition,
           tags: match.signal.tags,
           status: match.signal.status,
-          observationCount: match.signal.observation_stats?.observation_count,
+          observationCount: stats.observation_count,
         };
       })
+      .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
       .filter((entry) => entry.confidence >= minConfidence)
-      .sort((a, b) => b.confidence - a.confidence || b.score - a.score)
+      .sort((a, b) => b.confidence - a.confidence)
       .slice(0, limit);
   }
 }

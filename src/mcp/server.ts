@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * Repertoire MCP Server — query primitives, synthesis, and routing context.
- * Provider-agnostic surface; Repertoire is the backing store.
+ * Repertoire MCP Server
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -54,7 +53,7 @@ const TOOLS = [
   {
     name: 'repertoire__search_primitives',
     description:
-      'Search curated primitives by text with confidence scores for agent introspection',
+      'Search curated primitives by text using registry observation_stats confidence',
     inputSchema: {
       type: 'object',
       properties: {
@@ -63,7 +62,7 @@ const TOOLS = [
           type: 'number',
           minimum: 0,
           maximum: 1,
-          description: 'Minimum confidence threshold (default 0)',
+          description: 'Minimum confidence threshold (default 0.55)',
         },
         limit: { type: 'number', minimum: 1, maximum: 50, description: 'Max results (default 10)' },
       },
@@ -71,46 +70,7 @@ const TOOLS = [
     },
   },
   {
-    name: 'query_signals',
-    description: 'Query curated signals by text, tag, or priority',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: { type: 'string', description: 'Text to match against signals' },
-        tag: { type: 'string', description: 'Filter by tag (e.g. ontological-trap)' },
-        priority: { type: 'string', enum: ['high', 'medium', 'low'] },
-      },
-    },
-  },
-  {
-    name: 'match_primitives',
-    description: 'Match operation text to curated primitives with scores',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        operation: { type: 'string' },
-      },
-      required: ['operation'],
-    },
-  },
-  {
-    name: 'get_routing_context',
-    description: 'Build memory routing context for orchestrator/thinDispatch',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        operation: { type: 'string' },
-      },
-      required: ['operation'],
-    },
-  },
-  {
-    name: 'get_high_priority_signals',
-    description: 'List all high-priority curated signals',
-    inputSchema: { type: 'object', properties: {} },
-  },
-  {
-    name: 'ingest_feedback',
+    name: 'repertoire__ingest_feedback',
     description: 'Record orchestrator routing outcome for meta-inference feedback loop',
     inputSchema: {
       type: 'object',
@@ -183,34 +143,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }),
       );
     }
-    case 'query_signals': {
-      let signals = service.signalsManager.load().signals;
-      if (a.tag) signals = signals.filter((s) => s.tags.includes(String(a.tag)));
-      if (a.priority) signals = signals.filter((s) => s.priority === a.priority);
-      if (a.query) {
-        const matches = service.querySignals(String(a.query));
-        signals = matches.map((m) => m.signal);
-      }
-      return jsonResult(signals);
-    }
-    case 'match_primitives': {
-      const matches = service.querySignals(String(a.operation));
-      return jsonResult(
-        matches.map((m) => ({
-          name: m.signal.name,
-          score: m.score,
-          priority: m.signal.priority,
-          definition: m.signal.definition,
-        })),
-      );
-    }
-    case 'get_routing_context': {
-      return jsonResult(service.buildRoutingContext(String(a.operation)));
-    }
-    case 'get_high_priority_signals': {
-      return jsonResult(service.getHighPrioritySignals());
-    }
-    case 'ingest_feedback': {
+    case 'repertoire__ingest_feedback': {
       const path = service.ingestOrchestratorFeedback({
         timestamp: new Date().toISOString(),
         sessionId: String(a.sessionId),
