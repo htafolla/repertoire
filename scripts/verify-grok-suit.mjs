@@ -54,8 +54,20 @@ for (const f of ['codex.json', 'features.json', 'config.json']) {
 // 2. features.json contract
 try {
   const features = JSON.parse(readFileSync(join(root, '.xray/features.json'), 'utf8'));
-  if (features.version === '3.4.3') pass('features.json version', '3.4.3');
-  else fail('features.json version', `got ${features.version}`);
+  let installedXrayVersion = 'unknown';
+  try {
+    const xrayPkg = JSON.parse(
+      readFileSync(join(root, 'node_modules/0xray/package.json'), 'utf8'),
+    );
+    installedXrayVersion = xrayPkg.version ?? 'unknown';
+  } catch {
+    /* optional */
+  }
+  if (features.version === installedXrayVersion) {
+    pass('features.json version', installedXrayVersion);
+  } else {
+    fail('features.json version', `got ${features.version}, expected ${installedXrayVersion}`);
+  }
   if (features.inference_governance?.enabled) pass('inference_governance');
   else fail('inference_governance', 'not enabled');
   if (features.memory_routing?.enabled) pass('memory_routing');

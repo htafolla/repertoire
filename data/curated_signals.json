@@ -1,6 +1,6 @@
 {
   "description": "Curated high-signal primitives and invariants surfaced by Groover inference that are not yet tracked in the Master Index or MCP filters. Each entry includes implementation guidance for autonomous agents.",
-  "last_updated": "2026-06-18T03:22:33.927Z",
+  "last_updated": "2026-06-18T20:04:34.606Z",
   "source": "meta-inference-2026-06-17-deep",
   "schema_version": "1.1",
   "implementation_guidance": {
@@ -38,20 +38,20 @@
       "implementation_notes": "Add detection logic in the inference prompt for replies that contrast 'map' vs 'verdict' language. Enforce via govern_with_solar on ontological-trap entries.",
       "observation_stats": {
         "observation_count": 335,
-        "avg_confidence": 0.9968656716417911,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:22:33.926Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 5,
-        "success_count": 5,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "mcp-smoke-task",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 1200,
-        "last_seen": "2026-06-18T03:22:33.926Z"
+        "outcome_count": 148,
+        "success_count": 37,
+        "failure_count": 111,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     },
     {
@@ -78,20 +78,20 @@
       "implementation_notes": "This should become a required step in the govern_with_solar flow for any ontological-trap classified reply. Add to the inference prompt as a mandatory closure primitive when this gap is detected.",
       "observation_stats": {
         "observation_count": 335,
-        "avg_confidence": 0.9948656716417911,
+        "avg_confidence": 0.5888656716417907,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "outcome_count": 88,
+        "success_count": 6,
+        "failure_count": 82,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     },
     {
@@ -116,20 +116,20 @@
       "implementation_notes": "Add to the negative-space analysis step in the inference prompt. When detected, the reply should propose a concrete detector primitive.",
       "observation_stats": {
         "observation_count": 335,
-        "avg_confidence": 0.9948656716417911,
+        "avg_confidence": 0.5888656716417907,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "outcome_count": 88,
+        "success_count": 6,
+        "failure_count": 82,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     },
     {
@@ -153,20 +153,20 @@
       "implementation_notes": "This is more research-oriented. Add as an optional analysis dimension in the inference prompt for high-stakes ontological-trap cases.",
       "observation_stats": {
         "observation_count": 337,
-        "avg_confidence": 0.9925697329376857,
+        "avg_confidence": 0.5865697329376853,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "outcome_count": 88,
+        "success_count": 6,
+        "failure_count": 82,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     },
     {
@@ -190,20 +190,20 @@
       "implementation_notes": "Add detection in the TYPE classification step. When detected, the reply should surface the gap as a first-class signal.",
       "observation_stats": {
         "observation_count": 327,
-        "avg_confidence": 1,
+        "avg_confidence": 0.5939999999999996,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "outcome_count": 88,
+        "success_count": 6,
+        "failure_count": 82,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     },
     {
@@ -227,20 +227,20 @@
       "implementation_notes": "Strong candidate for direct integration into govern_with_solar. When this signal appears, the reply should propose a concrete embedding mechanism.",
       "observation_stats": {
         "observation_count": 335,
-        "avg_confidence": 0.9948656716417911,
+        "avg_confidence": 0.5888656716417907,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "outcome_count": 88,
+        "success_count": 6,
+        "failure_count": 82,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     },
     {
@@ -264,20 +264,20 @@
       "implementation_notes": "This is one of the most actionable. Add as a required output primitive when the inference detects a handoff or multi-agent scenario.",
       "observation_stats": {
         "observation_count": 335,
-        "avg_confidence": 0.9948656716417911,
+        "avg_confidence": 0.5888656716417907,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "outcome_count": 88,
+        "success_count": 6,
+        "failure_count": 82,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     },
     {
@@ -301,20 +301,20 @@
       "implementation_notes": "Primarily relevant for posts with strong interpretive/hermeneutic dimensions. Add as a TYPE sub-classification when detected.",
       "observation_stats": {
         "observation_count": 327,
-        "avg_confidence": 1,
+        "avg_confidence": 0.5939999999999996,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T03:14:45.594Z",
+        "last_seen": "2026-06-18T20:04:34.606Z",
         "governance_forced_count": 324
       },
       "feedback_stats": {
-        "outcome_count": 4,
-        "success_count": 4,
-        "failure_count": 0,
-        "last_outcome": "success",
-        "last_task_id": "live-trap-routing-1",
-        "last_assigned_agent": "architect",
-        "last_duration_ms": 836,
-        "last_seen": "2026-06-18T03:14:45.594Z"
+        "outcome_count": 88,
+        "success_count": 6,
+        "failure_count": 82,
+        "last_outcome": "failure",
+        "last_task_id": "a34-reject-proof",
+        "last_assigned_agent": "field-shadow",
+        "last_duration_ms": 0,
+        "last_seen": "2026-06-18T20:04:34.606Z"
       }
     }
   ]

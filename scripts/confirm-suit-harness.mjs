@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
- * Post-reboot harness confirmation protocol.
- * Run after Grok Build session start: npm run confirm:suit
+ * Grok Build harness confirmation protocol (Layers 2a/2c + 2b checklist).
  *
- * Layer 1: filesystem + CLI (verify-grok-suit.mjs)
+ * Invoked by:
+ *   npm run confirm:suit          — full Grok confirm (Layer 1 via verify:suit + this harness + trap test)
+ *   npm run confirm:suit:all      — all 4 bridges + this harness for Grok deep probes
+ *
+ * Layer 1: filesystem + CLI (verify-grok-suit.mjs) — run separately or via confirm:suit
  * Layer 2a: stdio MCP probes (repertoire memory routing — bypasses harness prefix bug)
  * Layer 2b: harness MCP probes (agent runs CallMcpTool live — documented below)
  */
@@ -11,19 +14,19 @@ import { spawn } from 'node:child_process';
 import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { readInstalledXrayVersion } from './suit-bridge-shared.mjs';
 
 const root = resolve(import.meta.dirname, '..');
+const skipLayer1 = process.argv.includes('--skip-layer1');
 
-function readInstalledXrayVersion() {
-  try {
-    const pkg = JSON.parse(
-      readFileSync(join(root, 'node_modules/0xray/package.json'), 'utf8'),
-    );
-    return pkg.version ?? 'unknown';
-  } catch {
-    return 'unknown';
-  }
+function resolveResearcherServerPath() {
+  const sibling = resolve(root, '../xray/dist/mcps/researcher.server.js');
+  if (existsSync(sibling)) return sibling;
+  return resolve(root, 'node_modules/0xray/dist/mcps/researcher.server.js');
 }
+
+const TRAP_PROBE_DESCRIPTION =
+  'TYPE: ontological-trap attestation-as-map consumer-boundary revalidation required';
 
 function mcpStdioProbe({ serverPath, toolName, args, timeoutMs = 4000 }) {
   return new Promise((resolveProbe, rejectProbe) => {
@@ -79,14 +82,18 @@ function mcpStdioProbe({ serverPath, toolName, args, timeoutMs = 4000 }) {
 console.log('═══ 0xRay Suit Confirmation Protocol ═══\n');
 
 // ── Layer 1 ──────────────────────────────────────────────────────────────────
-console.log('Layer 1 — Local install (automated)\n');
-let layer1Ok = false;
-try {
-  execSync('node scripts/verify-grok-suit.mjs', { cwd: root, stdio: 'inherit' });
-  layer1Ok = true;
-} catch {
-  console.error('\n❌ Layer 1 FAILED — fix before harness probes\n');
-  process.exit(1);
+let layer1Ok = skipLayer1;
+if (skipLayer1) {
+  console.log('Layer 1 — Skipped (--skip-layer1; already verified by confirm-suit-all)\n');
+} else {
+  console.log('Layer 1 — Local install (automated)\n');
+  try {
+    execSync('node scripts/verify-grok-suit.mjs', { cwd: root, stdio: 'inherit' });
+    layer1Ok = true;
+  } catch {
+    console.error('\n❌ Layer 1 FAILED — fix before harness probes\n');
+    process.exit(1);
+  }
 }
 
 // ── Layer 2a — stdio probes ──────────────────────────────────────────────────
@@ -113,6 +120,50 @@ if (!existsSync(repertoireServer)) {
   } catch (e) {
     layer2a.push({ name: 'repertoire stdio', ok: false });
     console.error(`❌ repertoire stdio — ${e.message}`);
+  }
+}
+
+// ── Layer 2c — researcher trap routing (MCP subprocess) ───────────────────
+console.log('\nLayer 2c — Researcher trap routing e2e (automated)\n');
+const layer2c = [];
+
+const researcherServer = resolveResearcherServerPath();
+if (!existsSync(researcherServer)) {
+  console.error('❌ researcher stdio — server missing');
+  layer2c.push({ name: 'researcher trap routing', ok: false });
+} else {
+  try {
+    let ok = false;
+    let lastOut = '';
+    for (let attempt = 0; attempt < 6 && !ok; attempt++) {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 500));
+      lastOut = await mcpStdioProbe({
+        serverPath: researcherServer,
+        toolName: 'analyze_proposal',
+        args: {
+          proposalTitle: 'Trap governance review',
+          proposalDescription: TRAP_PROBE_DESCRIPTION,
+          proposalType: 'governance',
+        },
+        timeoutMs: 8000,
+      });
+      ok =
+        lastOut.includes('MEMORY_ROUTING:') &&
+        lastOut.includes('recommendedAgent: architect') &&
+        lastOut.includes('attestation-as-map');
+    }
+    layer2c.push({ name: 'analyze_proposal trap routing (stdio)', ok });
+    console.log(
+      ok
+        ? '✅ analyze_proposal trap routing (stdio)'
+        : '❌ researcher trap routing — silent no-op (MEMORY_ROUTING missing)',
+    );
+    if (!ok) {
+      console.error(`   Response snippet: ${lastOut.slice(0, 240)}`);
+    }
+  } catch (e) {
+    layer2c.push({ name: 'researcher trap routing', ok: false });
+    console.error(`❌ researcher trap routing — ${e.message}`);
   }
 }
 
@@ -143,22 +194,24 @@ for (const p of harnessProbes) {
 
 // ── Layer 3 — verdict ────────────────────────────────────────────────────────
 const layer2aOk = layer2a.every((c) => c.ok);
+const layer2cOk = layer2c.every((c) => c.ok);
 console.log(`
 Layer 3 — Suit worn verdict (automated portion)
   Layer 1: ${layer1Ok ? 'GREEN' : 'RED'}
   Layer 2a repertoire stdio: ${layer2aOk ? 'GREEN' : 'RED'}
+  Layer 2c researcher trap routing: ${layer2cOk ? 'GREEN' : 'RED'}
 
-  FULL    = Layer 1 green + Layer 2a green + all Layer 2b harness probes respond
+  FULL    = Layer 1 + 2a + 2c green + all Layer 2b harness probes respond
   PARTIAL = Layer 1 green + core harness MCPs live (enforcer, skills, orchestrator, governance, Dynamo)
   BROKEN  = Layer 1 fails OR core MCPs unreachable
 
 Harness note: repertoire tools are registered as repertoire__* — Grok harness prepends
-server name again (repertoire__repertoire__*). Memory routing works via stdio (Layer 2a).
+server name again (repertoire__repertoire__*). Memory routing works via stdio (Layer 2a/2c).
 
 Version: npm 0xray@${readInstalledXrayVersion()} from node_modules (no npm link)
 `);
 
-if (layer1Ok && layer2aOk) {
+if (layer1Ok && layer2aOk && layer2cOk) {
   console.log('✅ Automated checks PASS — agent should confirm Layer 2b harness probes for FULL verdict.');
   process.exit(0);
 }

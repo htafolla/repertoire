@@ -69,13 +69,23 @@
     "test": "vitest run",
     "test:e2e": "vitest run scripts/e2e-confidence-loop.test.ts",
     "test:mcp": "npm run build && vitest run scripts/test-mcp-stdio.test.ts",
+    "test:trap-routing": "npm run build && vitest run scripts/test-researcher-trap-routing-e2e.test.ts",
     "verify:suit": "npm run build && node scripts/verify-grok-suit.mjs",
-    "confirm:suit": "npm run verify:suit && node scripts/confirm-suit-harness.mjs",
+    "confirm:suit": "npm run verify:suit && node scripts/confirm-suit-harness.mjs && npm run test:trap-routing",
+    "verify:suit:all": "npm run build && node scripts/confirm-suit-all.mjs",
+    "confirm:suit:all": "npm run build && node scripts/confirm-suit-all.mjs --install --grok-harness && npm run test:trap-routing",
+    "install:bridges": "npx 0xray grok install --force && npx 0xray hermes install --force && npx 0xray opencode install --force && npx 0xray openclaw install --force",
+    "verify:hermes": "node scripts/verify-hermes-suit.mjs",
+    "verify:opencode": "node scripts/verify-opencode-suit.mjs",
+    "verify:openclaw": "node scripts/verify-openclaw-suit.mjs",
+    "confirm:hermes": "npm run build && npx 0xray hermes install --force && npm run verify:hermes",
+    "confirm:opencode": "npm run build && npx 0xray opencode install --force && npm run verify:opencode",
+    "confirm:openclaw": "npm run build && npx 0xray openclaw install --force && npm run verify:openclaw",
     "test:watch": "vitest"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "0xray": "^3.4.3"
+    "0xray": "^3.4.7"
   },
   "devDependencies": {
     "tsx": "^4.19.0",

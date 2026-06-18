@@ -2,6 +2,9 @@ node_modules/
 dist/
 logs/
 .strray/
+.grok/
 .opencode/
+opencode.json
 *.log
 data/inference-state.json
+.xray/state/

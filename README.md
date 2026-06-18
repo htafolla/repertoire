@@ -12,6 +12,14 @@ npm install @0xray/repertoire
 
 Requires `0xray@^3.2.0` (use **3.4.1** for full memory-routing + MCP bridge support).
 
+## Suit + autonomy (Grok Build)
+
+```bash
+npm run confirm:suit    # post-reboot: Layer 1 + 2a + 2b checklist
+```
+
+Default operating model: **`autonomy-command`** — lead dev, phased todos, subagent dispatch, per-suite test triage. See [AGENTS.md](AGENTS.md) and [xray autonomy guide](https://0xrayai.github.io/xray/docs/guides/autonomy-command).
+
 ## MCP server (Hermes, Grok, OpenCode)
 
 ```json

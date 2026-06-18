@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "20.x"
+
+jobs:
+  test:
+    name: Test + Grok suit verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: MCP stdio smoke
+        run: npm run test:mcp
+
+      - name: Trap routing E2E
+        run: npm run test:trap-routing
+
+      - name: Install Grok bridge (native 0xray)
+        run: npx 0xray grok install --force
+
+      - name: Suit wear matrix (Grok + skip others without CLI)
+        run: npm run verify:suit:all
