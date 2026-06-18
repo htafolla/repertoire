@@ -54,7 +54,7 @@ for (const f of ['codex.json', 'features.json', 'config.json']) {
 // 2. features.json contract
 try {
   const features = JSON.parse(readFileSync(join(root, '.xray/features.json'), 'utf8'));
-  if (features.version === '3.4.2') pass('features.json version', '3.4.2');
+  if (features.version === '3.4.3') pass('features.json version', '3.4.3');
   else fail('features.json version', `got ${features.version}`);
   if (features.inference_governance?.enabled) pass('inference_governance');
   else fail('inference_governance', 'not enabled');
