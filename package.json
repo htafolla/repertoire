@@ -26,6 +26,7 @@
     "query": "node --import tsx scripts/query-signals.ts",
     "mcp": "node dist/mcp/server.js",
     "test": "vitest run",
+    "test:e2e": "vitest run scripts/e2e-confidence-loop.test.ts",
     "test:watch": "vitest"
   },
   "dependencies": {
