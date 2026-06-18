@@ -286,8 +286,15 @@ export class RepertoireMemoryRoutingProvider implements MemoryRoutingProvider {
     };
   }
 
-  ingestFeedback(entry: OrchestratorFeedbackEntry): void {
-    this.service.ingestOrchestratorFeedback({
+  ingestFeedback(entry: OrchestratorFeedbackEntry): {
+    logPath: string;
+    updatedSignals: Array<{
+      signalName: string;
+      previousAvgConfidence: number | null;
+      updatedAvgConfidence: number | null;
+    }>;
+  } {
+    return this.service.ingestOrchestratorFeedback({
       timestamp: entry.timestamp,
       sessionId: entry.sessionId,
       taskId: entry.taskId,

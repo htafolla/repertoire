@@ -257,7 +257,12 @@ describe('MCP stdio smoke (Hermes path)', () => {
         },
       });
 
-      expect(textToolResult(result)).toContain('Feedback recorded:');
+      const payload = parseJsonToolResult(result) as {
+        logPath: string;
+        updatedSignals: Array<{ signalName: string }>;
+      };
+      expect(payload.logPath).toContain('orchestrator-feedback');
+      expect(payload.updatedSignals.map((entry) => entry.signalName)).toContain(TRAP_SIGNAL);
     } finally {
       await closeMcpSession(session);
     }

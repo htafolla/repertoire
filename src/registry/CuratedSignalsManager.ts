@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import type {
   CuratedSignal,
   CuratedSignalsFile,
+  OrchestratorFeedbackEntry,
   PrimitiveMatch,
   SignalMatch,
   SignalPriority,
@@ -17,6 +18,16 @@ export interface PromotionGateOptions {
 
 export const DEFAULT_PROMOTION_MIN_CONFIDENCE = 0.55;
 export const DEFAULT_PROMOTION_MIN_OBSERVATIONS = 2;
+export const FEEDBACK_SUCCESS_CONFIDENCE_BOOST = 0.002;
+export const FEEDBACK_FAILURE_CONFIDENCE_PENALTY = 0.005;
+export const FEEDBACK_MIN_CONFIDENCE = DEFAULT_PROMOTION_MIN_CONFIDENCE;
+
+export interface FeedbackOutcomeResult {
+  signalName: string;
+  previousAvgConfidence: number | null;
+  updatedAvgConfidence: number | null;
+  feedbackStats: NonNullable<CuratedSignal['feedback_stats']>;
+}
 
 export class CuratedSignalsManager {
   private readonly filePath: string;
@@ -220,6 +231,65 @@ export class CuratedSignalsManager {
     return this.load().signals.filter(
       (signal) => (signal.observation_stats?.avg_confidence ?? 0) >= minAvgConfidence,
     );
+  }
+
+  /**
+   * Record orchestrator routing outcome against signals used for the task.
+   * Successful outcomes nudge avg_confidence up slightly; failures nudge down.
+   */
+  recordFeedbackOutcome(entry: OrchestratorFeedbackEntry): FeedbackOutcomeResult[] {
+    const data = this.load();
+    const now = entry.timestamp || new Date().toISOString();
+    const signalNames = [...new Set(entry.repertoireSignals.filter(Boolean))];
+    const results: FeedbackOutcomeResult[] = [];
+
+    for (const signalName of signalNames) {
+      const signal = data.signals.find((candidate) => candidate.name === signalName);
+      if (!signal) continue;
+
+      const previousAvg = signal.observation_stats?.avg_confidence ?? null;
+      const previousFeedback = signal.feedback_stats;
+      const outcomeCount = (previousFeedback?.outcome_count ?? 0) + 1;
+
+      signal.feedback_stats = {
+        outcome_count: outcomeCount,
+        success_count: (previousFeedback?.success_count ?? 0) + (entry.success ? 1 : 0),
+        failure_count: (previousFeedback?.failure_count ?? 0) + (entry.success ? 0 : 1),
+        last_outcome: entry.success ? 'success' : 'failure',
+        last_task_id: entry.taskId,
+        last_assigned_agent: entry.assignedAgent,
+        last_duration_ms: entry.durationMs,
+        last_seen: now,
+      };
+
+      if (signal.observation_stats) {
+        const delta = entry.success
+          ? FEEDBACK_SUCCESS_CONFIDENCE_BOOST
+          : -FEEDBACK_FAILURE_CONFIDENCE_PENALTY;
+        const next = Math.max(
+          FEEDBACK_MIN_CONFIDENCE,
+          Math.min(1, signal.observation_stats.avg_confidence + delta),
+        );
+        signal.observation_stats = {
+          ...signal.observation_stats,
+          avg_confidence: next,
+          last_seen: now,
+        };
+      }
+
+      results.push({
+        signalName,
+        previousAvgConfidence: previousAvg,
+        updatedAvgConfidence: signal.observation_stats?.avg_confidence ?? null,
+        feedbackStats: signal.feedback_stats,
+      });
+    }
+
+    if (results.length > 0) {
+      this.save(data);
+    }
+
+    return results;
   }
 
   private createEmptyFile(): CuratedSignalsFile {

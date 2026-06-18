@@ -1,4 +1,7 @@
-import { CuratedSignalsManager } from './registry/CuratedSignalsManager.js';
+import {
+  CuratedSignalsManager,
+  type FeedbackOutcomeResult,
+} from './registry/CuratedSignalsManager.js';
 import { InferenceStateManager } from './registry/InferenceStateManager.js';
 import { MetaInferenceEngine } from './synthesis/meta-inference-engine.js';
 import { GrooverLogIngester } from './ingestion/groover-log-ingester.js';
@@ -74,8 +77,13 @@ export class RepertoireService {
     return ingester.ingest();
   }
 
-  ingestOrchestratorFeedback(entry: OrchestratorFeedbackEntry): string {
-    return this.feedbackIngester.ingest(entry);
+  ingestOrchestratorFeedback(entry: OrchestratorFeedbackEntry): {
+    logPath: string;
+    updatedSignals: FeedbackOutcomeResult[];
+  } {
+    const logPath = this.feedbackIngester.ingest(entry);
+    const updatedSignals = this.signalsManager.recordFeedbackOutcome(entry);
+    return { logPath, updatedSignals };
   }
 
   async runMetaInference(): Promise<SynthesisReport | null> {

@@ -68,6 +68,11 @@ export class RepertoireOrchestratorBridge {
     };
 
     const confidenceContext = getConfidenceForTask(syntheticTask, this.signalsManager);
+    const trapAgent = this.resolveTrapCapableAgent(confidenceContext, capabilities);
+    if (trapAgent) {
+      return trapAgent;
+    }
+
     const repertoireContext = this.buildRoutingContext(operationDescription);
     let bestAgent: string | null = null;
     let bestScore = -1;
@@ -89,17 +94,37 @@ export class RepertoireOrchestratorBridge {
       }
     }
 
-    if (confidenceContext.highConfidenceTrapPresent && bestAgent) {
-      const trapAgent = TRAP_CAPABLE_AGENTS.find((agent) => capabilities.has(agent));
-      if (trapAgent && capabilities.get(trapAgent)) {
-        const trapCaps = capabilities.get(trapAgent)!;
-        if (complexity <= trapCaps.complexityThreshold) {
-          return trapAgent;
-        }
-      }
+    return bestAgent;
+  }
+
+  /**
+   * High-confidence trap tasks route to recommendedAgent (default architect)
+   * without applying complexityThreshold — boost is for scoring, not exclusion.
+   */
+  resolveTrapCapableAgent(
+    confidenceContext: TaskConfidenceContext,
+    capabilities: Map<string, AgentCapability>,
+  ): string | null {
+    if (!confidenceContext.highConfidenceTrapPresent) return null;
+
+    const candidates: string[] = [];
+    const recommended = confidenceContext.recommendedAgent;
+    if (
+      recommended &&
+      TRAP_CAPABLE_AGENTS.includes(recommended as (typeof TRAP_CAPABLE_AGENTS)[number])
+    ) {
+      candidates.push(recommended);
     }
 
-    return bestAgent;
+    for (const agent of TRAP_CAPABLE_AGENTS) {
+      if (!candidates.includes(agent)) candidates.push(agent);
+    }
+
+    for (const agent of candidates) {
+      if (capabilities.has(agent)) return agent;
+    }
+
+    return null;
   }
 
   resolveThinDispatchAgent(

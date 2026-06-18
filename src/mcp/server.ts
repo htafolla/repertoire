@@ -154,7 +154,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       );
     }
     case 'repertoire__ingest_feedback': {
-      const path = service.ingestOrchestratorFeedback({
+      const result = service.ingestOrchestratorFeedback({
         timestamp: new Date().toISOString(),
         sessionId: String(a.sessionId),
         taskId: String(a.taskId),
@@ -164,9 +164,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         success: Boolean(a.success),
         durationMs: Number(a.durationMs),
       });
-      return {
-        content: [{ type: 'text', text: `Feedback recorded: ${path}` }],
-      };
+      return jsonResult({
+        logPath: result.logPath,
+        updatedSignals: result.updatedSignals,
+      });
     }
     default:
       return {

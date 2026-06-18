@@ -205,6 +205,28 @@ describe('E2E confidence loop (simulated)', () => {
     const thinDispatch = service.resolveThinDispatch('code-reviewer', trapTaskDescription(), 30);
     expect(thinDispatch.agent).toBe('architect');
     expect(thinDispatch.adjustedScore).toBeGreaterThan(30);
+
+    const beforeFeedback = service.signalsManager.getByName(TRAP_SIGNAL);
+    const beforeAvg = beforeFeedback?.observation_stats?.avg_confidence ?? 0;
+
+    const feedback = service.ingestOrchestratorFeedback({
+      timestamp: '2026-06-18T12:10:00.000Z',
+      sessionId: 'e2e-feedback-session',
+      taskId: 'e2e-trap-task',
+      assignedAgent: selectedAgent ?? 'architect',
+      repertoireSignals: taskConfidence.matchedSignals,
+      complexity: 45,
+      success: true,
+      durationMs: 2100,
+    });
+
+    expect(feedback.logPath).toContain('orchestrator-feedback');
+    expect(feedback.updatedSignals.map((entry) => entry.signalName)).toContain(TRAP_SIGNAL);
+
+    const afterFeedback = service.signalsManager.getByName(TRAP_SIGNAL);
+    expect(afterFeedback?.feedback_stats?.success_count).toBe(1);
+    expect(afterFeedback?.feedback_stats?.last_assigned_agent).toBe('architect');
+    expect(afterFeedback?.observation_stats?.avg_confidence).toBeGreaterThan(beforeAvg);
   });
 
   it('skips unstructured Groover logs during ingest', () => {

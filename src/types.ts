@@ -51,6 +51,17 @@ export interface SignalObservationStats {
   governance_forced_count: number;
 }
 
+export interface SignalFeedbackStats {
+  outcome_count: number;
+  success_count: number;
+  failure_count: number;
+  last_outcome: 'success' | 'failure';
+  last_task_id?: string;
+  last_assigned_agent?: string;
+  last_duration_ms?: number;
+  last_seen: string;
+}
+
 export interface WeightedPrimitive {
   name: string;
   weightedScore: number;
@@ -73,6 +84,7 @@ export interface CuratedSignal {
   master_index_integration: string;
   implementation_notes: string;
   observation_stats?: SignalObservationStats;
+  feedback_stats?: SignalFeedbackStats;
 }
 
 export interface CuratedSignalsFile {

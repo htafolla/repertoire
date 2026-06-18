@@ -1,6 +1,6 @@
 {
   "description": "Curated high-signal primitives and invariants surfaced by Groover inference that are not yet tracked in the Master Index or MCP filters. Each entry includes implementation guidance for autonomous agents.",
-  "last_updated": "2026-06-17T22:40:00.000Z",
+  "last_updated": "2026-06-18T03:14:45.594Z",
   "source": "meta-inference-2026-06-17-deep",
   "schema_version": "1.1",
   "implementation_guidance": {
@@ -30,12 +30,29 @@
         7
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "high",
       "evaluation_criteria": "The inference reply explicitly states that attestation is directional/ongoing rather than final, or criticizes treating signatures as sufficient without consumer-side checks.",
       "validation_experiment": "Create a test post containing only static attestation metadata with no consumer recheck hook. Run it through govern_with_solar and check whether the result is REJECT or resonanceScore < 0.3.",
       "master_index_integration": "Should be registered as a first-class signal type. Queries for 'attestation' should surface entries that distinguish map vs verdict semantics.",
-      "implementation_notes": "Add detection logic in the inference prompt for replies that contrast 'map' vs 'verdict' language. Enforce via govern_with_solar on ontological-trap entries."
+      "implementation_notes": "Add detection logic in the inference prompt for replies that contrast 'map' vs 'verdict' language. Enforce via govern_with_solar on ontological-trap entries.",
+      "observation_stats": {
+        "observation_count": 335,
+        "avg_confidence": 0.9948656716417911,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     },
     {
       "name": "consumption-boundary-revalidation-gate",
@@ -53,12 +70,29 @@
         7
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "high",
       "evaluation_criteria": "Reply mentions that re-validation must occur at the consumption boundary or that upstream attestation alone is insufficient without this step.",
       "validation_experiment": "Instrument a parser/loader boundary with a controlled schema mutation after upstream attestation. Verify the system emits an explicit re-validation obligation record before permitting downstream action.",
       "master_index_integration": "Store as a required boundary primitive. Master Index queries should be able to filter for entries that have vs have not passed consumption-boundary revalidation.",
-      "implementation_notes": "This should become a required step in the govern_with_solar flow for any ontological-trap classified reply. Add to the inference prompt as a mandatory closure primitive when this gap is detected."
+      "implementation_notes": "This should become a required step in the govern_with_solar flow for any ontological-trap classified reply. Add to the inference prompt as a mandatory closure primitive when this gap is detected.",
+      "observation_stats": {
+        "observation_count": 335,
+        "avg_confidence": 0.9948656716417911,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     },
     {
       "name": "parse-mutation-detector",
@@ -74,12 +108,29 @@
         6
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "high",
       "evaluation_criteria": "Reply identifies that a parser or transformation step can silently change meaning and that current attestation does not cover this mutation surface.",
       "validation_experiment": "Feed the system an attested artifact, apply a controlled parse transformation, and measure whether a fail-closed signal or re-evaluation trigger is emitted within one inference cycle.",
       "master_index_integration": "Should be queryable as a 'mutation surface' signal. Entries that passed through parse-mutation-detector checks should be distinguishable.",
-      "implementation_notes": "Add to the negative-space analysis step in the inference prompt. When detected, the reply should propose a concrete detector primitive."
+      "implementation_notes": "Add to the negative-space analysis step in the inference prompt. When detected, the reply should propose a concrete detector primitive.",
+      "observation_stats": {
+        "observation_count": 335,
+        "avg_confidence": 0.9948656716417911,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     },
     {
       "name": "model-latent-geometry-as-true-invariant",
@@ -94,12 +145,29 @@
         3
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "medium",
       "evaluation_criteria": "Reply argues that geometry/attractors are more fundamental than declared metadata, especially when provenance is removed or altered.",
       "validation_experiment": "Remove all declared provenance logs and routing attestations from an agent trace while preserving latent geometry signals under edge probes. Test whether MCP still assigns high resonance based on geometry alone.",
       "master_index_integration": "Introduce a signal category for 'geometry-based invariants' separate from provenance-based ones.",
-      "implementation_notes": "This is more research-oriented. Add as an optional analysis dimension in the inference prompt for high-stakes ontological-trap cases."
+      "implementation_notes": "This is more research-oriented. Add as an optional analysis dimension in the inference prompt for high-stakes ontological-trap cases.",
+      "observation_stats": {
+        "observation_count": 337,
+        "avg_confidence": 0.9925697329376857,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     },
     {
       "name": "criteria_selection_gap",
@@ -114,12 +182,29 @@
         1
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "medium",
       "evaluation_criteria": "Reply points out that criteria for including/excluding certain rules or interpretations are not made explicit or auditable.",
       "validation_experiment": "Present a post containing both internal textual trajectory and an external norm. Measure whether the inference layer emits an explicit criteria_selection_gap primitive and routes it to MCP.",
       "master_index_integration": "Track as a hermeneutic/interpretation signal. Should be queryable when analyzing interpretation quality.",
-      "implementation_notes": "Add detection in the TYPE classification step. When detected, the reply should surface the gap as a first-class signal."
+      "implementation_notes": "Add detection in the TYPE classification step. When detected, the reply should surface the gap as a first-class signal.",
+      "observation_stats": {
+        "observation_count": 327,
+        "avg_confidence": 1,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     },
     {
       "name": "interpreter-mode-boundary-invariant",
@@ -134,12 +219,29 @@
         4
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "high",
       "evaluation_criteria": "Reply emphasizes that some invariant must be embedded in a way that forces the consumer to recompute or re-validate it after any parsing step.",
       "validation_experiment": "Design an attestation payload that embeds a contract hash which the consumer must independently recompute after parsing. Verify the system treats failure to recompute as a governance violation.",
       "master_index_integration": "Register as a boundary-enforcement primitive. Should appear in queries about trust boundaries.",
-      "implementation_notes": "Strong candidate for direct integration into govern_with_solar. When this signal appears, the reply should propose a concrete embedding mechanism."
+      "implementation_notes": "Strong candidate for direct integration into govern_with_solar. When this signal appears, the reply should propose a concrete embedding mechanism.",
+      "observation_stats": {
+        "observation_count": 335,
+        "avg_confidence": 0.9948656716417911,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     },
     {
       "name": "trust-transfer-boundary",
@@ -154,12 +256,29 @@
         7
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "high",
       "evaluation_criteria": "Reply argues that re-validation obligations must be explicitly recorded and passed along at every trust transfer.",
       "validation_experiment": "Simulate a multi-hop agent workflow where an attested artifact crosses two trust boundaries. Verify that a trust-transfer-boundary record is created at each hop.",
       "master_index_integration": "Should be a core boundary primitive. Master Index should support queries for chains of trust-transfer-boundary records.",
-      "implementation_notes": "This is one of the most actionable. Add as a required output primitive when the inference detects a handoff or multi-agent scenario."
+      "implementation_notes": "This is one of the most actionable. Add as a required output primitive when the inference detects a handoff or multi-agent scenario.",
+      "observation_stats": {
+        "observation_count": 335,
+        "avg_confidence": 0.9948656716417911,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     },
     {
       "name": "external_norm_smuggling_risk",
@@ -174,12 +293,29 @@
         1
       ],
       "first_seen": "2026-06-17",
-      "status": "proposed",
+      "status": "validated",
       "priority": "medium",
       "evaluation_criteria": "Reply identifies that external norms are being applied without being made explicit or submitted to the internal logic of the text/framework.",
       "validation_experiment": "Present a covenantal-context post containing both internal textual trajectory and an external norm. Check whether the inference layer emits an explicit external_norm_smuggling_risk primitive.",
       "master_index_integration": "Track as an interpretation-risk signal. Useful for auditing hermeneutic consistency.",
-      "implementation_notes": "Primarily relevant for posts with strong interpretive/hermeneutic dimensions. Add as a TYPE sub-classification when detected."
+      "implementation_notes": "Primarily relevant for posts with strong interpretive/hermeneutic dimensions. Add as a TYPE sub-classification when detected.",
+      "observation_stats": {
+        "observation_count": 327,
+        "avg_confidence": 1,
+        "max_confidence": 1,
+        "last_seen": "2026-06-18T03:14:45.594Z",
+        "governance_forced_count": 324
+      },
+      "feedback_stats": {
+        "outcome_count": 4,
+        "success_count": 4,
+        "failure_count": 0,
+        "last_outcome": "success",
+        "last_task_id": "live-trap-routing-1",
+        "last_assigned_agent": "architect",
+        "last_duration_ms": 836,
+        "last_seen": "2026-06-18T03:14:45.594Z"
+      }
     }
   ]
 }
