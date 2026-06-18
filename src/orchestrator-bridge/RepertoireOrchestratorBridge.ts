@@ -4,9 +4,11 @@ import type {
   OrchestrationTask,
   RepertoireInheritedContext,
   RepertoireRoutingContext,
+  TaskConfidenceContext,
 } from '../types.js';
 import { CuratedSignalsManager } from '../registry/CuratedSignalsManager.js';
 import { CapabilityEnhancer } from './capability-enhancer.js';
+import { getConfidenceForTask, TRAP_CAPABLE_AGENTS } from './confidence-gate.js';
 import { SignalInjector } from './signal-injector.js';
 
 export class RepertoireOrchestratorBridge {
@@ -28,6 +30,10 @@ export class RepertoireOrchestratorBridge {
     return this.injector.buildRoutingContext(operation);
   }
 
+  getConfidenceForTask(task: OrchestrationTask): TaskConfidenceContext {
+    return getConfidenceForTask(task, this.signalsManager);
+  }
+
   injectSignalsIntoTasks(tasks: OrchestrationTask[]): OrchestrationTask[] {
     return this.injector.matchSignalsForTasks(tasks);
   }
@@ -36,10 +42,6 @@ export class RepertoireOrchestratorBridge {
     return this.injector.buildInheritedContext(tasks);
   }
 
-  /**
-   * Enriches an execution plan with Repertoire metadata before agent assignment.
-   * Intended to be called from ExecutionPlanner.createExecutionPlan (0xRay patch).
-   */
   enrichExecutionPlan(
     plan: ExecutionPlan,
     tasks: OrchestrationTask[],
@@ -52,16 +54,20 @@ export class RepertoireOrchestratorBridge {
     };
   }
 
-  /**
-   * Select best agent using Repertoire-aware scoring.
-   * Mirrors AgentCapabilitiesManager.selectAgentForTask with signal dimensions.
-   */
   selectAgentForTask(
     capabilities: Map<string, AgentCapability>,
     requiredCapabilities: string[],
     complexity: number,
     operationDescription: string,
+    task?: OrchestrationTask,
   ): string | null {
+    const syntheticTask: OrchestrationTask = task ?? {
+      id: 'routing-op',
+      description: operationDescription,
+      type: requiredCapabilities[0] ?? 'general',
+    };
+
+    const confidenceContext = getConfidenceForTask(syntheticTask, this.signalsManager);
     const repertoireContext = this.buildRoutingContext(operationDescription);
     let bestAgent: string | null = null;
     let bestScore = -1;
@@ -74,6 +80,7 @@ export class RepertoireOrchestratorBridge {
         caps,
         requiredCapabilities,
         repertoireContext,
+        confidenceContext,
       );
 
       if (score > bestScore) {
@@ -82,22 +89,39 @@ export class RepertoireOrchestratorBridge {
       }
     }
 
+    if (confidenceContext.highConfidenceTrapPresent && bestAgent) {
+      const trapAgent = TRAP_CAPABLE_AGENTS.find((agent) => capabilities.has(agent));
+      if (trapAgent && capabilities.get(trapAgent)) {
+        const trapCaps = capabilities.get(trapAgent)!;
+        if (complexity <= trapCaps.complexityThreshold) {
+          return trapAgent;
+        }
+      }
+    }
+
     return bestAgent;
   }
 
-  /**
-   * thinDispatch integration: returns agent override when ontological-trap detected.
-   */
   resolveThinDispatchAgent(
     baseAgent: string,
     operation: string,
     complexityScore: number,
   ): { agent: string; adjustedScore: number; repertoireContext: RepertoireRoutingContext } {
+    const syntheticTask: OrchestrationTask = {
+      id: 'thin-dispatch',
+      description: operation,
+      type: 'routing',
+    };
+    const confidenceContext = getConfidenceForTask(syntheticTask, this.signalsManager);
     const repertoireContext = this.buildRoutingContext(operation);
-    const adjustedScore = this.injector.adjustComplexityScore(complexityScore, repertoireContext);
+    const adjustedScore = this.injector.adjustComplexityScore(
+      complexityScore,
+      repertoireContext,
+      confidenceContext,
+    );
 
     let agent = baseAgent;
-    if (repertoireContext.ontologicalTrapDetected && adjustedScore >= 26) {
+    if (confidenceContext.highConfidenceTrapPresent && adjustedScore >= 26) {
       agent = 'architect';
     } else if (
       repertoireContext.matchedTags.includes('provenance-failure') &&

@@ -33,12 +33,23 @@ export interface MemoryOrchestrationTask {
   metadata?: Record<string, unknown>;
 }
 
+export interface MemoryTaskConfidence {
+  signals: Array<{ name: string; confidence: number }>;
+  avgConfidence: number;
+  maxConfidence: number;
+  highConfidenceTrapPresent: boolean;
+  ontologicalTrapDetected: boolean;
+  complexityBoost: number;
+}
+
 export interface MemoryRoutingContext {
   providerId: string;
   matchedSignals: string[];
   matchedTags: string[];
   flags: Record<string, boolean>;
   synthesisAvailable: boolean;
+  signalConfidences?: Record<string, number>;
+  avgMatchConfidence?: number;
 }
 
 export interface MemoryInheritedContext {
@@ -94,6 +105,7 @@ export interface MemoryRoutingProvider {
     operation: string,
     complexityScore: number,
   ): MemoryThinDispatchResult;
+  getTaskConfidence?(task: MemoryOrchestrationTask): MemoryTaskConfidence;
   ingestFeedback?(entry: OrchestratorFeedbackEntry): void;
 }
 
@@ -122,8 +134,13 @@ function toRoutingContext(ctx: RepertoireRoutingContext): MemoryRoutingContext {
     providerId: 'repertoire',
     matchedSignals: ctx.matchedSignals,
     matchedTags: ctx.matchedTags,
-    flags: { ontologicalTrapDetected: ctx.ontologicalTrapDetected },
+    flags: {
+      ontologicalTrapDetected: ctx.ontologicalTrapDetected,
+      highConfidenceTrap: ctx.highConfidenceTrapPresent,
+    },
     synthesisAvailable: ctx.synthesisAvailable,
+    signalConfidences: ctx.signalConfidences,
+    avgMatchConfidence: ctx.avgMatchConfidence,
   };
 }
 
@@ -238,6 +255,30 @@ export class RepertoireMemoryRoutingProvider implements MemoryRoutingProvider {
       agent: resolved.agent,
       adjustedScore: resolved.adjustedScore,
       context: toRoutingContext(resolved.repertoireContext),
+    };
+  }
+
+  getTaskConfidence(task: MemoryOrchestrationTask): MemoryTaskConfidence {
+    const repTask: OrchestrationTask = {
+      id: task.id,
+      description: task.description,
+      type: task.type,
+      priority: task.priority,
+      dependencies: task.dependencies,
+      estimatedComplexity: task.estimatedComplexity,
+      metadata: task.metadata as OrchestrationTask['metadata'],
+    };
+    const context = this.service.orchestratorBridge.getConfidenceForTask(repTask);
+    return {
+      signals: context.signals.map((entry) => ({
+        name: entry.name,
+        confidence: entry.confidence,
+      })),
+      avgConfidence: context.avgConfidence,
+      maxConfidence: context.maxConfidence,
+      highConfidenceTrapPresent: context.highConfidenceTrapPresent,
+      ontologicalTrapDetected: context.ontologicalTrapDetected,
+      complexityBoost: context.complexityBoost,
     };
   }
 

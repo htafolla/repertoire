@@ -112,12 +112,32 @@ export interface SignalMatch {
   matchedOn: Array<'name' | 'tag' | 'definition' | 'criteria' | 'snippet'>;
 }
 
+export interface SignalConfidenceDetail {
+  name: string;
+  confidence: number;
+  source: 'registry' | 'text-match' | 'task-metadata';
+  matchedVia?: SignalMatch['matchedOn'];
+}
+
+export interface TaskConfidenceContext {
+  signals: SignalConfidenceDetail[];
+  avgConfidence: number;
+  maxConfidence: number;
+  highConfidenceTrapPresent: boolean;
+  ontologicalTrapDetected: boolean;
+  minConfidenceGate: number;
+  complexityBoost: number;
+}
+
 export interface RepertoireRoutingContext {
   matchedSignals: string[];
   matchedTags: string[];
   ontologicalTrapDetected: boolean;
   synthesisAvailable: boolean;
   signalMatches: SignalMatch[];
+  signalConfidences: Record<string, number>;
+  avgMatchConfidence: number;
+  highConfidenceTrapPresent: boolean;
 }
 
 export interface RepertoireInheritedContext {
@@ -160,6 +180,11 @@ export interface OrchestrationTask {
     matchedPrimitives?: string[];
     synthesisContext?: string;
     ontologicalTrapDetected?: boolean;
+    memorySignalConfidences?: Record<string, number>;
+    memoryAvgConfidence?: number;
+    memoryHighConfidenceTrap?: boolean;
+    memoryComplexityBoost?: number;
+    match_confidence?: Record<string, number>;
   };
 }
 
