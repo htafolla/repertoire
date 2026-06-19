@@ -75,7 +75,7 @@ export function ensureConsumerRootMarker(markerPath, installCmd) {
     marked = readFileSync(markerPath, 'utf8').trim();
     if (marked === consumerRoot) return consumerRoot;
   }
-  console.log(
+  process.stdout.write(
     `⚠  consumer root ${marked ? `drift (${marked})` : 'missing'} — running ${installCmd}\n`,
   );
   execSync(installCmd, { cwd: consumerRoot, stdio: 'inherit' });

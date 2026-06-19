@@ -1,6 +1,6 @@
 {
   "name": "@0xray/repertoire",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Deep memory, synthesis, and orchestrator enrichment for the 0xRay/Groover stack",
   "type": "module",
   "license": "MIT",
@@ -94,7 +94,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "0xray": "^3.5.1"
+    "0xray": "^3.5.3"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
