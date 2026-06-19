@@ -1,6 +1,6 @@
 {
   "$schema": "./features.schema.json",
-  "version": "3.5.1",
+  "version": "3.5.3",
   "description": "0xRay Framework - Unified Feature Configuration",
   "token_optimization": {
     "enabled": true,
@@ -153,16 +153,51 @@
     "reflection": {
       "mode": "minimal",
       "triggers": {
-        "ci_failure": { "enabled": true, "auto_generate_stub": true },
-        "commit_threshold": { "enabled": true, "threshold": 25, "auto_generate_stub": true },
-        "time_threshold": { "enabled": true, "days": 14, "auto_generate_stub": true },
-        "test_failure": { "enabled": true, "auto_generate_stub": true },
-        "deployment": { "enabled": true, "auto_generate_stub": true }
+        "ci_failure": {
+          "enabled": true,
+          "auto_generate_stub": true
+        },
+        "commit_threshold": {
+          "enabled": true,
+          "threshold": 25,
+          "auto_generate_stub": true
+        },
+        "time_threshold": {
+          "enabled": true,
+          "days": 14,
+          "auto_generate_stub": true
+        },
+        "test_failure": {
+          "enabled": true,
+          "auto_generate_stub": true
+        },
+        "deployment": {
+          "enabled": true,
+          "auto_generate_stub": true
+        }
       },
       "thresholds": {
-        "full": { "commit_threshold": 10, "days_threshold": 5, "auto_generate": true, "auto_commit": false, "prompt_user": true },
-        "minimal": { "commit_threshold": 25, "days_threshold": 14, "auto_generate": true, "auto_commit": false, "prompt_user": true },
-        "off": { "commit_threshold": 999, "days_threshold": 365, "auto_generate": false, "auto_commit": false, "prompt_user": false }
+        "full": {
+          "commit_threshold": 10,
+          "days_threshold": 5,
+          "auto_generate": true,
+          "auto_commit": false,
+          "prompt_user": true
+        },
+        "minimal": {
+          "commit_threshold": 25,
+          "days_threshold": 14,
+          "auto_generate": true,
+          "auto_commit": false,
+          "prompt_user": true
+        },
+        "off": {
+          "commit_threshold": 999,
+          "days_threshold": 365,
+          "auto_generate": false,
+          "auto_commit": false,
+          "prompt_user": false
+        }
       }
     }
   },

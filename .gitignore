@@ -7,4 +7,23 @@ logs/
 opencode.json
 *.log
 data/inference-state.json
+
+# Core config tracked; runtime state only
 .xray/state/
+
+# Generated suit artifacts (postinstall) — not core SSOT
+.mcp.json
+AGENTS.md
+SKILLS.md
+.hermes/
+.opencode/agents/
+.opencode/commands/
+.opencode/workflows/
+.opencode/codex.codex
+.opencode/enforcer-config.json
+.opencode/skills/
+.opencode/scripts/
+.opencode/logs/
+.opencode/validation/
+.opencode/triage/
+logs/framework/

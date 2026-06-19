@@ -1,6 +1,6 @@
 {
   "name": "@0xray/repertoire",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Deep memory, synthesis, and orchestrator enrichment for the 0xRay/Groover stack",
   "type": "module",
   "license": "MIT",
@@ -48,6 +48,7 @@
   "files": [
     "dist/",
     "scripts/verify-grok-suit.mjs",
+    "scripts/verify-synthesis-dogfood.mjs",
     "scripts/suit-bridge-shared.mjs",
     "scripts/confirm-suit-harness.mjs",
     "scripts/confirm-suit-all.mjs",
@@ -79,8 +80,9 @@
     "test:mcp": "npm run build && vitest run scripts/test-mcp-stdio.test.ts",
     "test:trap-routing": "npm run build && vitest run --config vitest.trap-routing.config.ts",
     "verify:suit": "npm run build && node scripts/verify-grok-suit.mjs",
+    "verify:synthesis-dogfood": "npm run build && node scripts/verify-synthesis-dogfood.mjs",
     "verify:grok-delegation-gate": "node node_modules/0xray/scripts/mjs/verify-grok-delegation-gate.mjs",
-    "confirm:suit": "npm run verify:suit && node scripts/confirm-suit-harness.mjs && npm run test:trap-routing",
+    "confirm:suit": "npm run verify:suit && npm run verify:synthesis-dogfood && node scripts/confirm-suit-harness.mjs && npm run test:trap-routing",
     "verify:suit:all": "npm run build && node scripts/confirm-suit-all.mjs",
     "confirm:suit:all": "npm run build && node scripts/confirm-suit-all.mjs --install --grok-harness && npm run test:trap-routing",
     "install:bridges": "npx 0xray grok install --force && npx 0xray hermes install --force && npx 0xray opencode install --force && npx 0xray openclaw install --force",

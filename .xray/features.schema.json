@@ -27,6 +27,23 @@
       "then": {
         "required": ["module_path"]
       }
+    },
+    "synthesis": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "every_n_gates": { "type": "integer", "minimum": 0 },
+        "every_n_turns": { "type": "integer", "minimum": 0 },
+        "every_n_todos_completed": { "type": "integer", "minimum": 0 },
+        "reflection": {
+          "type": "object",
+          "properties": {
+            "mode": { "type": "string", "enum": ["full", "minimal", "off"] },
+            "triggers": { "type": "object" },
+            "thresholds": { "type": "object" }
+          }
+        }
+      }
     }
   },
   "additionalProperties": true
