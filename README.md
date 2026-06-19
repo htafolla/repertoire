@@ -2,7 +2,7 @@
 
 Deep memory, synthesis, and orchestrator enrichment for the [0xRay](https://github.com/0xRayAI/xray) / Groover stack.
 
-**v0.1.2** · integrates with **0xRay v3.5.0+** (loop closure + memory routing)
+**v0.1.3** · integrates with **0xRay v3.5.0+** (loop closure + memory routing)
 
 ## Install
 

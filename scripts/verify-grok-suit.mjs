@@ -7,13 +7,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { mcpStdioInitializeProbe } from './suit-bridge-shared.mjs';
-
-function resolveVerifyRoot() {
-  if (process.env.SUIT_VERIFY_ROOT) return resolve(process.env.SUIT_VERIFY_ROOT);
-  if (existsSync(join(process.cwd(), '.xray', 'features.json'))) return process.cwd();
-  return resolve(import.meta.dirname, '..');
-}
+import { mcpStdioInitializeProbe, resolveConsumerRoot } from './suit-bridge-shared.mjs';
 
 function resolveMemoryProviderPath(projectRoot) {
   const local = join(projectRoot, 'dist/provider/memory-routing-provider.js');
@@ -26,7 +20,7 @@ function resolveMemoryProviderPath(projectRoot) {
   return local;
 }
 
-const root = resolveVerifyRoot();
+const root = resolveConsumerRoot();
 let failed = 0;
 
 function pass(name, detail = '') {

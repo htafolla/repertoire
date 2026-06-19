@@ -69,6 +69,13 @@ assert(
 const mcpScript = pkg.scripts?.mcp ?? '';
 assert('mcp npm script', mcpScript.includes('dist/mcp/server.js'));
 
+const { resolveConsumerRoot, readInstalledXrayVersion, XRAY_MCP_SERVERS } = await import(
+  pathToFileURL(join(repoRoot, 'scripts/suit-bridge-shared.mjs')).href
+);
+assert('resolveConsumerRoot', typeof resolveConsumerRoot() === 'string');
+assert('bridge-mcp-wiring SSOT', Array.isArray(XRAY_MCP_SERVERS) && XRAY_MCP_SERVERS.length > 0);
+assert('0xray version resolved', readInstalledXrayVersion() !== 'unknown');
+
 const failed = checks.filter((c) => !c.ok);
 if (failed.length > 0) {
   process.stderr.write(`\n❌ Consumer smoke failed (${failed.length}/${checks.length})\n`);

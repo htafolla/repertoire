@@ -7,14 +7,28 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-const root = resolve(import.meta.dirname, '..');
+const packageRoot = resolve(import.meta.dirname, '..');
+
+/** Consumer project root (hoisted 0xray lives here, not under @0xray/repertoire). */
+export function resolveConsumerRoot() {
+  if (process.env.SUIT_VERIFY_ROOT) return resolve(process.env.SUIT_VERIFY_ROOT);
+  if (existsSync(join(process.cwd(), '.xray', 'features.json'))) return resolve(process.cwd());
+  return packageRoot;
+}
+
+function xrayPathCandidates(...segments) {
+  const consumerRoot = resolveConsumerRoot();
+  const roots =
+    consumerRoot === packageRoot ? [packageRoot] : [consumerRoot, packageRoot];
+  const candidates = roots.map((r) => join(r, 'node_modules/0xray', ...segments));
+  candidates.push(resolve(packageRoot, '../xray', ...segments));
+  return candidates;
+}
 
 function resolveXrayBridgeModule() {
-  const candidates = [
-    join(root, 'node_modules/0xray/scripts/node/bridge-mcp-wiring.cjs'),
-    resolve(root, '../xray/scripts/node/bridge-mcp-wiring.cjs'),
-  ];
-  const found = candidates.find((p) => existsSync(p));
+  const found = xrayPathCandidates('scripts/node/bridge-mcp-wiring.cjs').find((p) =>
+    existsSync(p),
+  );
   if (!found) {
     throw new Error('0xray bridge-mcp-wiring.cjs missing — run npm install');
   }
@@ -39,18 +53,14 @@ export const REPERTOIRE_MCP = {
 };
 
 export function resolveXrayScript(filename) {
-  const candidates = [
-    join(root, 'node_modules/0xray/scripts/node', filename),
-    resolve(root, '../xray/scripts/node', filename),
-  ];
-  return candidates.find((p) => existsSync(p)) ?? null;
+  return xrayPathCandidates('scripts/node', filename).find((p) => existsSync(p)) ?? null;
 }
 
 export function readInstalledXrayVersion() {
+  const pkgPath = xrayPathCandidates('package.json').find((p) => existsSync(p));
+  if (!pkgPath) return 'unknown';
   try {
-    const pkg = createRequire(import.meta.url)(
-      join(root, 'node_modules/0xray/package.json'),
-    );
+    const pkg = createRequire(import.meta.url)(pkgPath);
     return pkg.version ?? 'unknown';
   } catch {
     return 'unknown';
