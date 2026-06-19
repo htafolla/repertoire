@@ -93,7 +93,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "0xray": "^3.4.9"
+    "0xray": "^3.4.10"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

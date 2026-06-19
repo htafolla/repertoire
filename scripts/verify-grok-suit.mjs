@@ -258,5 +258,19 @@ try {
   fail('MCP enforcer stdio', e.message?.slice(0, 120));
 }
 
+// 11. Orchestrator behavior assertions (0xray@3.4.10+)
+const behaviorScript = join(root, 'node_modules/0xray/scripts/mjs/verify-orchestrator-behavior.mjs');
+if (!existsSync(behaviorScript)) {
+  fail('Orchestrator behavior assertions', 'missing script — npm install 0xray@^3.4.10');
+} else {
+  try {
+    execSync(`node "${behaviorScript}"`, { cwd: root, stdio: 'pipe', encoding: 'utf8' });
+    pass('Orchestrator behavior assertions');
+  } catch (e) {
+    const detail = (e.stderr || e.stdout || e.message || '').toString().slice(0, 160);
+    fail('Orchestrator behavior assertions', detail);
+  }
+}
+
 console.log('\n' + (failed === 0 ? '🎉 Suit wearable — operate within 0xRay.' : `⚠️  ${failed} check(s) failed — fix before tuning.`));
 process.exit(failed === 0 ? 0 : 1);
