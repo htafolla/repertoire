@@ -1,6 +1,6 @@
 {
   "$schema": "./features.schema.json",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "0xRay Framework - Unified Feature Configuration",
   "token_optimization": {
     "enabled": true,
@@ -143,6 +143,27 @@
       "dataDir": "../repertoire/data",
       "signalsPath": "../repertoire/data/curated_signals.json",
       "logDir": "../repertoire/logs/groover-inference"
+    }
+  },
+  "synthesis": {
+    "enabled": true,
+    "every_n_gates": 12,
+    "every_n_turns": 0,
+    "every_n_todos_completed": 0,
+    "reflection": {
+      "mode": "minimal",
+      "triggers": {
+        "ci_failure": { "enabled": true, "auto_generate_stub": true },
+        "commit_threshold": { "enabled": true, "threshold": 25, "auto_generate_stub": true },
+        "time_threshold": { "enabled": true, "days": 14, "auto_generate_stub": true },
+        "test_failure": { "enabled": true, "auto_generate_stub": true },
+        "deployment": { "enabled": true, "auto_generate_stub": true }
+      },
+      "thresholds": {
+        "full": { "commit_threshold": 10, "days_threshold": 5, "auto_generate": true, "auto_commit": false, "prompt_user": true },
+        "minimal": { "commit_threshold": 25, "days_threshold": 14, "auto_generate": true, "auto_commit": false, "prompt_user": true },
+        "off": { "commit_threshold": 999, "days_threshold": 365, "auto_generate": false, "auto_commit": false, "prompt_user": false }
+      }
     }
   },
   "inference_governance": {
