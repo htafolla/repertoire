@@ -61,6 +61,7 @@ async function closeResearcherSession(session: ResearcherSession): Promise<void>
 }
 
 describe('xray-researcher MCP trap routing e2e (P0.5)', () => {
+  // Researcher MCP cold-start can exceed default 5s on CI / macOS
   let serverPath: string;
 
   beforeAll(() => {
@@ -77,7 +78,7 @@ describe('xray-researcher MCP trap routing e2e (P0.5)', () => {
     // sessions closed per test
   });
 
-  it('analyze_proposal emits MEMORY_ROUTING immediately (no async load race)', async () => {
+  it('analyze_proposal emits MEMORY_ROUTING immediately (no async load race)', { timeout: 30_000 }, async () => {
     const session = await openResearcherSession();
     try {
       const result = await session.client.callTool({
@@ -104,7 +105,7 @@ describe('xray-researcher MCP trap routing e2e (P0.5)', () => {
     }
   });
 
-  it('routine proposal does not emit MEMORY_ROUTING block', async () => {
+  it('routine proposal does not emit MEMORY_ROUTING block', { timeout: 30_000 }, async () => {
     const session = await openResearcherSession();
     try {
       const result = await session.client.callTool({
