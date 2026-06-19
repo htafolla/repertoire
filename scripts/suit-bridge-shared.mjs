@@ -3,8 +3,8 @@
  * Consumer-side helpers for suit verification — constants from 0xray bridge-mcp-wiring (SSOT).
  */
 import { createRequire } from 'node:module';
-import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { execSync, spawn } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const packageRoot = resolve(import.meta.dirname, '..');
@@ -65,6 +65,21 @@ export function readInstalledXrayVersion() {
   } catch {
     return 'unknown';
   }
+}
+
+/** Re-run native install when xray-consumer-root.txt points at wrong cwd (e.g. npx cache). */
+export function ensureConsumerRootMarker(markerPath, installCmd) {
+  const consumerRoot = resolveConsumerRoot();
+  let marked = '';
+  if (existsSync(markerPath)) {
+    marked = readFileSync(markerPath, 'utf8').trim();
+    if (marked === consumerRoot) return consumerRoot;
+  }
+  console.log(
+    `⚠  consumer root ${marked ? `drift (${marked})` : 'missing'} — running ${installCmd}\n`,
+  );
+  execSync(installCmd, { cwd: consumerRoot, stdio: 'inherit' });
+  return consumerRoot;
 }
 
 export function mcpStdioInitializeProbe({ cwd, command, args, env = {}, timeoutMs = 6000 }) {

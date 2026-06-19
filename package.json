@@ -77,7 +77,7 @@
     "test": "vitest run",
     "test:e2e": "vitest run scripts/e2e-confidence-loop.test.ts",
     "test:mcp": "npm run build && vitest run scripts/test-mcp-stdio.test.ts",
-    "test:trap-routing": "npm run build && vitest run scripts/test-researcher-trap-routing-e2e.test.ts",
+    "test:trap-routing": "npm run build && vitest run --config vitest.trap-routing.config.ts",
     "verify:suit": "npm run build && node scripts/verify-grok-suit.mjs",
     "verify:grok-delegation-gate": "node node_modules/0xray/scripts/mjs/verify-grok-delegation-gate.mjs",
     "confirm:suit": "npm run verify:suit && node scripts/confirm-suit-harness.mjs && npm run test:trap-routing",

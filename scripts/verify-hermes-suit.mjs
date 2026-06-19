@@ -12,9 +12,14 @@ import {
   HERMES_PLUGIN_DIR,
   REPERTOIRE_MCP,
   XRAY_MCP_SERVERS,
+  ensureConsumerRootMarker,
 } from './suit-bridge-shared.mjs';
 
 const root = resolve(import.meta.dirname, '..');
+ensureConsumerRootMarker(
+  join(HERMES_PLUGIN_DIR, 'xray-consumer-root.txt'),
+  'npx 0xray hermes install --force',
+);
 let failed = 0;
 
 function pass(name, detail = '') {
@@ -90,8 +95,8 @@ try {
 // 7. Bridge health
 try {
   const out = execSync(
-    `printf '%s' '{"command":"health"}' | node "${join(HERMES_PLUGIN_DIR, 'bridge.mjs')}"`,
-    { encoding: 'utf8' },
+    `printf '%s' '{"command":"health"}' | node "${join(HERMES_PLUGIN_DIR, 'bridge.mjs')}" --cwd "${root}"`,
+    { encoding: 'utf8', cwd: root, env: { ...process.env, XRAY_ROOT: root } },
   );
   const health = JSON.parse(out.trim());
   if (health.framework === 'loaded') pass('bridge health', 'framework loaded');
@@ -138,6 +143,20 @@ try {
   else fail('plugin tools (plugin.yaml)', `found ${found.length}/4`);
 } catch (e) {
   fail('plugin tools (plugin.yaml)', e.message?.slice(0, 120));
+}
+
+// 11. Delegation gate fixture (0xray@3.5.1+)
+const hermesGateScript = join(root, 'node_modules/0xray/scripts/mjs/verify-hermes-delegation-gate.mjs');
+if (existsSync(hermesGateScript)) {
+  try {
+    execSync(`node "${hermesGateScript}"`, { cwd: root, stdio: 'pipe', encoding: 'utf8' });
+    pass('Hermes delegation gate fixture', '4/4');
+  } catch (e) {
+    const detail = (e.stdout || e.stderr || e.message || '').split('\n').slice(-3).join(' ').slice(0, 160);
+    fail('Hermes delegation gate fixture', detail);
+  }
+} else {
+  fail('Hermes delegation gate fixture', 'missing script — npm install 0xray@^3.5.1');
 }
 
 console.log('\n' + (failed === 0 ? '🎉 Hermes suit wearable.' : `⚠️  ${failed} Hermes check(s) failed.`));

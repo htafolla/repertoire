@@ -6,10 +6,14 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { REPERTOIRE_MCP, XRAY_MCP_SERVERS } from './suit-bridge-shared.mjs';
+import { REPERTOIRE_MCP, XRAY_MCP_SERVERS, ensureConsumerRootMarker } from './suit-bridge-shared.mjs';
 
 const root = resolve(import.meta.dirname, '..');
 const OPENCLAW_STATE = join(homedir(), '.openclaw');
+ensureConsumerRootMarker(
+  join(OPENCLAW_STATE, 'xray-consumer-root.txt'),
+  'npx 0xray openclaw install --force',
+);
 const OPENCLAW_CONFIG = join(OPENCLAW_STATE, 'openclaw.json');
 let failed = 0;
 
