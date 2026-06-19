@@ -18,7 +18,8 @@ import {
 export class SignalInjector {
   constructor(
     private readonly signalsManager: CuratedSignalsManager,
-    private readonly synthesisReportPath = 'logs/meta-inference/synthesis.md',
+    private readonly projectRoot = process.cwd(),
+    private readonly synthesisReportPath?: string,
   ) {}
 
   buildRoutingContext(text: string): RepertoireRoutingContext {
@@ -56,7 +57,7 @@ export class SignalInjector {
       matchedSignals: matches.map((match) => match.signal.name),
       matchedTags: [...new Set(matches.flatMap((match) => match.signal.tags))],
       ontologicalTrapDetected,
-      synthesisAvailable: existsSync(this.synthesisReportPath),
+      synthesisAvailable: this.resolveSynthesisReportPath() != null,
       signalMatches: matches,
       signalConfidences,
       avgMatchConfidence,
@@ -225,9 +226,24 @@ export class SignalInjector {
     return baseScore;
   }
 
+  private resolveSynthesisReportPath(): string | null {
+    if (this.synthesisReportPath) {
+      const custom = this.synthesisReportPath.startsWith('/')
+        ? this.synthesisReportPath
+        : join(this.projectRoot, this.synthesisReportPath);
+      return existsSync(custom) ? custom : null;
+    }
+    const candidates = [
+      join(this.projectRoot, 'logs/meta-inference/synthesis.md'),
+      join(this.projectRoot, 'logs/meta-inference/dry-synthesis.md'),
+    ];
+    return candidates.find((candidate) => existsSync(candidate)) ?? null;
+  }
+
   private getSynthesisExcerpt(maxChars: number): string | undefined {
-    if (!existsSync(this.synthesisReportPath)) return undefined;
-    const content = readFileSync(this.synthesisReportPath, 'utf8');
+    const reportPath = this.resolveSynthesisReportPath();
+    if (!reportPath) return undefined;
+    const content = readFileSync(reportPath, 'utf8');
     const section5 = content.split('## 5. Strategic Recommendations')[1];
     const excerpt = section5 ?? content.slice(-maxChars);
     return excerpt.slice(0, maxChars).trim();

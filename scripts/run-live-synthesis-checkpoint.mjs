@@ -21,6 +21,9 @@ const planPath = join(stateDir, 'lead-dev-plan.json');
 
 const DEFAULT_SESSION = 'live-synthesis-repertoire';
 
+const log = (msg) => process.stdout.write(`${msg}\n`);
+const err = (msg) => process.stderr.write(`${msg}\n`);
+
 function parseSessionId() {
   const arg = process.argv.find((a) => a.startsWith('--session-id='));
   return arg?.split('=')[1] || process.env.GROK_SESSION_ID || DEFAULT_SESSION;
@@ -39,10 +42,17 @@ async function loadXray() {
 
 async function cmdSeed() {
   const sessionId = parseSessionId();
+  const grokSession = process.env.GROK_SESSION_ID;
+  if (grokSession && grokSession !== sessionId) {
+    err(
+      `❌ GROK_SESSION_ID (${grokSession}) ≠ seed sessionId (${sessionId}) — hooks will skip synthesis due`,
+    );
+    process.exit(1);
+  }
   const features = loadFeatures();
   const threshold = features.synthesis?.every_n_gates ?? 12;
   if (!features.synthesis?.enabled) {
-    console.error('❌ synthesis.enabled is false in .xray/features.json');
+    err('❌ synthesis.enabled is false in .xray/features.json');
     process.exit(1);
   }
 
@@ -53,7 +63,7 @@ async function cmdSeed() {
   if (existsSync(checkpointPath)) {
     const prior = synthesis.loadSynthesisCheckpointState(root);
     if (prior?.synthesisDue) {
-      console.log('ℹ️  Clearing prior due checkpoint for fresh live run');
+      log('ℹ️  Clearing prior due checkpoint for fresh live run');
     }
   }
 
@@ -66,14 +76,14 @@ async function cmdSeed() {
   const state = synthesis.loadSynthesisCheckpointState(root);
   const due = synthesis.isSynthesisCheckpointDue(root, sessionId);
 
-  console.log(`📊 sessionId: ${sessionId}`);
-  console.log(`📊 gate slices recorded: ${threshold}`);
-  console.log(`📊 synthesisDue: ${due}`);
-  console.log(`📊 dueReason: ${state?.dueReason ?? 'null'}`);
-  console.log(`📊 synthesisCount: ${state?.synthesisCount ?? 0}`);
+  log(`📊 sessionId: ${sessionId}`);
+  log(`📊 gate slices recorded: ${threshold}`);
+  log(`📊 synthesisDue: ${due}`);
+  log(`📊 dueReason: ${state?.dueReason ?? 'null'}`);
+  log(`📊 synthesisCount: ${state?.synthesisCount ?? 0}`);
 
   if (!due) {
-    console.error('❌ Checkpoint not due after seeding');
+    err('❌ Checkpoint not due after seeding');
     process.exit(1);
   }
 
@@ -93,9 +103,9 @@ async function cmdSeed() {
     ),
   );
 
-  console.log('\n✅ Live synthesis checkpoint SEEDED');
-  console.log('Next: CallMcpTool xray-orchestrator analyze-complexity with sessionId');
-  console.log(`      sessionId: "${sessionId}"`);
+  log('\n✅ Live synthesis checkpoint SEEDED');
+  log('Next: CallMcpTool xray-orchestrator analyze-complexity with sessionId');
+  log(`      sessionId: "${sessionId}"`);
 }
 
 async function cmdStatus() {
@@ -106,7 +116,7 @@ async function cmdStatus() {
   const plan = persistence.loadPersistedLeadDevPlan(root);
   const consultTodos = plan ? persistence.getSynthesisConsultTodos(plan) : [];
 
-  console.log(JSON.stringify(
+  log(JSON.stringify(
     {
       sessionId,
       synthesisDue: due,
@@ -123,18 +133,55 @@ async function cmdStatus() {
 
 async function cmdCompleteTodo() {
   const todoId = process.argv.find((a) => a.startsWith('--id='))?.split('=')[1];
+  const verdict = process.argv.find((a) => a.startsWith('--verdict='))?.split('=')[1];
   if (!todoId) {
-    console.error('Usage: complete-todo --id=s.1');
+    err('Usage: complete-todo --id=s.1 --verdict=PASS|CONDITIONAL|FAIL');
     process.exit(1);
   }
+  if (!verdict || !['PASS', 'CONDITIONAL', 'FAIL'].includes(verdict)) {
+    err('❌ --verdict=PASS|CONDITIONAL|FAIL required (consult receipt gate)');
+    process.exit(1);
+  }
+
+  const sessionId = parseSessionId();
   const { persistence } = await loadXray();
-  persistence.updatePlanTodoStatus(todoId, 'completed', root);
+  const { writeSynthesisConsultReceipt } = await import(
+    join(xrayRoot, 'dist/nucleus/synthesis-consult-receipt.js'),
+  );
+
   const plan = persistence.loadPersistedLeadDevPlan(root);
-  const todos = plan ? persistence.getSynthesisConsultTodos(plan) : [];
+  const consultTodo = plan
+    ? persistence.getSynthesisConsultTodos(plan).find((t) => t.id === todoId)
+    : null;
+  if (!consultTodo) {
+    err(`❌ Consult todo ${todoId} not found in lead-dev plan`);
+    process.exit(1);
+  }
+
+  writeSynthesisConsultReceipt(
+    todoId,
+    {
+      sessionId: plan?.sessionId ?? sessionId,
+      subagent: consultTodo.subagent,
+      verdict,
+      topRisks: [],
+      hardeningNote: process.argv.find((a) => a.startsWith('--note='))?.split('=')[1] ?? '',
+    },
+    root,
+  );
+
+  const updated = persistence.updatePlanTodoStatus(todoId, 'completed', root);
+  if (!updated) {
+    err(`❌ Receipt gate blocked completion for ${todoId}`);
+    process.exit(1);
+  }
+
+  const refreshed = persistence.loadPersistedLeadDevPlan(root);
+  const todos = refreshed ? persistence.getSynthesisConsultTodos(refreshed) : [];
   const allDone = todos.length > 0 && todos.every((t) => t.status === 'completed');
-  console.log(`✅ Marked ${todoId} completed`);
-  console.log(`📊 consult todos: ${todos.map((t) => `${t.id}:${t.status}`).join(', ')}`);
-  if (allDone) console.log('🎉 All consult todos complete — checkpoint should clear on next gate eval');
+  log(`✅ Marked ${todoId} completed (receipt: ${verdict})`);
+  log(`📊 consult todos: ${todos.map((t) => `${t.id}:${t.status}`).join(', ')}`);
+  if (allDone) log('🎉 All consult todos complete — checkpoint should clear on next gate eval');
 }
 
 async function cmdFinish() {
@@ -143,13 +190,13 @@ async function cmdFinish() {
   const due = synthesis.isSynthesisCheckpointDue(root, sessionId);
   const state = synthesis.loadSynthesisCheckpointState(root);
   if (due) {
-    console.error('❌ Checkpoint still due — complete all consult todos first');
+    err('❌ Checkpoint still due — complete all consult todos first');
     await cmdStatus();
     process.exit(1);
   }
-  console.log('✅ Live synthesis checkpoint CLEARED');
-  console.log(`📊 synthesisCount: ${state?.synthesisCount ?? 0}`);
-  console.log(`📊 lastSynthesisAt: ${state?.lastSynthesisAt ?? 'null'}`);
+  log('✅ Live synthesis checkpoint CLEARED');
+  log(`📊 synthesisCount: ${state?.synthesisCount ?? 0}`);
+  log(`📊 lastSynthesisAt: ${state?.lastSynthesisAt ?? 'null'}`);
 }
 
 const cmd = process.argv[2] || 'seed';
@@ -162,7 +209,7 @@ const handlers = {
 
 const handler = handlers[cmd];
 if (!handler) {
-  console.error(`Unknown command: ${cmd}`);
+  err(`Unknown command: ${cmd}`);
   process.exit(1);
 }
 await handler();

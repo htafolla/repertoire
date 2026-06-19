@@ -52,7 +52,13 @@ describe('SignalInjector.buildSynthesisContext', () => {
       }),
     );
 
-    const injector = new SignalInjector(manager);
+    mkdirSync(join(tempDir, 'logs/meta-inference'), { recursive: true });
+    writeFileSync(
+      join(tempDir, 'logs/meta-inference/dry-synthesis.md'),
+      '# Dry synthesis\n\n## 5. Strategic Recommendations\n- Add consult receipt gate\n',
+    );
+
+    const injector = new SignalInjector(manager, tempDir);
     const ctx = injector.buildSynthesisContext(tempDir);
 
     expect(ctx.primitive).toBe('synthesis');
@@ -62,5 +68,6 @@ describe('SignalInjector.buildSynthesisContext', () => {
     expect(ctx.planExcerpt).toContain('phase-1');
     expect(ctx.collatedText).toContain('Synthesis checkpoint');
     expect(ctx.collatedText).toContain('synthesis');
+    expect(ctx.synthesisExcerpt).toContain('consult receipt gate');
   });
 });
