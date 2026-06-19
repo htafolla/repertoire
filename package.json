@@ -65,6 +65,7 @@
     "LICENSE"
   ],
   "scripts": {
+
     "build": "tsc",
     "prepublishOnly": "npm run build && npm test && node scripts/consumer-install-smoke.mjs",
     "pack:check": "npm run build && node scripts/consumer-install-smoke.mjs && npm pack --dry-run",
@@ -79,6 +80,7 @@
     "test:mcp": "npm run build && vitest run scripts/test-mcp-stdio.test.ts",
     "test:trap-routing": "npm run build && vitest run scripts/test-researcher-trap-routing-e2e.test.ts",
     "verify:suit": "npm run build && node scripts/verify-grok-suit.mjs",
+    "verify:grok-delegation-gate": "node node_modules/0xray/scripts/mjs/verify-grok-delegation-gate.mjs",
     "confirm:suit": "npm run verify:suit && node scripts/confirm-suit-harness.mjs && npm run test:trap-routing",
     "verify:suit:all": "npm run build && node scripts/confirm-suit-all.mjs",
     "confirm:suit:all": "npm run build && node scripts/confirm-suit-all.mjs --install --grok-harness && npm run test:trap-routing",
@@ -93,7 +95,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "0xray": "^3.4.10"
+    "0xray": "file:../xray"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",

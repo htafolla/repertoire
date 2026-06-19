@@ -272,5 +272,32 @@ if (!existsSync(behaviorScript)) {
   }
 }
 
+// 12. Grok delegation gate fixture (0xray@3.5.0+)
+const gateScript = join(root, 'node_modules/0xray/scripts/mjs/verify-grok-delegation-gate.mjs');
+if (!existsSync(gateScript)) {
+  fail('Grok delegation gate fixture', 'missing script — npm install 0xray@main (3.5.0)');
+} else {
+  try {
+    execSync(`node "${gateScript}"`, { cwd: root, stdio: 'pipe', encoding: 'utf8' });
+    pass('Grok delegation gate fixture');
+  } catch (e) {
+    const detail = (e.stderr || e.stdout || e.message || '').toString().slice(0, 160);
+    fail('Grok delegation gate fixture', detail);
+  }
+}
+
+// 13. Installed Grok plugin PostToolUse hook (3.5.0 auto-chain)
+const installedGrokHooks = join(grokPlugin, 'hooks/hooks.json');
+if (existsSync(installedGrokHooks)) {
+  const installedRaw = readFileSync(installedGrokHooks, 'utf8');
+  if (installedRaw.includes('PostToolUse') && installedRaw.includes('post-tool-use.js')) {
+    pass('Grok plugin PostToolUse hook installed');
+  } else {
+    fail('Grok plugin PostToolUse hook', 'run: npx 0xray grok install --force');
+  }
+} else {
+  fail('Grok plugin PostToolUse hook', 'hooks.json missing — npx 0xray grok install --force');
+}
+
 console.log('\n' + (failed === 0 ? '🎉 Suit wearable — operate within 0xRay.' : `⚠️  ${failed} check(s) failed — fix before tuning.`));
 process.exit(failed === 0 ? 0 : 1);

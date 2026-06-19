@@ -35,7 +35,8 @@
     "per_suite_test_triage": true,
     "phased_plan_threshold": 25,
     "auto_consult_major_work": true,
-    "no_new_surface": true
+    "no_new_surface": true,
+    "auto_chain_delegations": true
   },
   "autonomous_reporting": {
     "enabled": true,
