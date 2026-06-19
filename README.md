@@ -2,7 +2,7 @@
 
 Deep memory, synthesis, and orchestrator enrichment for the [0xRay](https://github.com/0xRayAI/xray) / Groover stack.
 
-**v0.1.1** · integrates with **0xRay v3.4.8+** memory routing
+**v0.1.2** · integrates with **0xRay v3.5.0+** (loop closure + memory routing)
 
 ## Install
 
@@ -10,7 +10,13 @@ Deep memory, synthesis, and orchestrator enrichment for the [0xRay](https://gith
 npm install @0xray/repertoire
 ```
 
-Requires `0xray@^3.2.0` (use **3.4.1** for full memory-routing + MCP bridge support).
+Pulls `0xray@^3.5.0` as a dependency. After install, refresh Grok hooks:
+
+```bash
+npx 0xray grok install --force
+```
+
+Restart Grok MCP sessions — hooks do not hot-reload.
 
 ## Suit + autonomy (Grok Build)
 
@@ -21,10 +27,10 @@ npm run confirm:suit    # post-reboot: Layer 1 + 2a + 2b checklist
 **Suit verify from any consumer** (project must have `.xray/` + `0xray` installed):
 
 ```bash
-npx repertoire-verify-suit    # from consumer project root (postalocity-mcp, etc.)
+npx repertoire-verify-suit    # 30-check harness from any consumer project root
 ```
 
-Full harness: clone this repo and `npm run confirm:suit`. Quick check: `npx 0xray health`.
+Includes 3.5.0 delegation gate + PostToolUse assertions (steps 11–13). Full harness: clone this repo and `npm run confirm:suit`. Quick check: `npx 0xray health`.
 
 Default operating model: **`autonomy-command`** — lead dev, phased todos, subagent dispatch, per-suite test triage. See [AGENTS.md](AGENTS.md) and [xray autonomy guide](https://0xrayai.github.io/xray/docs/guides/autonomy-command).
 
