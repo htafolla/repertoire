@@ -114,6 +114,7 @@ export interface MemoryRoutingProvider {
     projectRoot: string;
     dueReason?: string | null;
   }): Record<string, unknown> | null;
+  refreshMetaInference?(): Promise<{ refreshed: boolean }>;
 }
 
 function toRepertoireCaps(caps: MemoryAgentCapability): AgentCapability {
@@ -321,6 +322,11 @@ export class RepertoireMemoryRoutingProvider implements MemoryRoutingProvider {
       opts.projectRoot,
       opts.dueReason ?? null,
     ) as unknown as Record<string, unknown>;
+  }
+
+  async refreshMetaInference(): Promise<{ refreshed: boolean }> {
+    const report = await this.service.runMetaInference();
+    return { refreshed: report !== null };
   }
 }
 
