@@ -84,6 +84,8 @@ try {
   else fail('inference_governance', 'not enabled');
   if (features.memory_routing?.enabled) pass('memory_routing');
   else fail('memory_routing', 'not enabled');
+  if (features.synthesis?.enabled) pass('synthesis.enabled');
+  else fail('synthesis.enabled', 'not enabled');
 } catch (e) {
   fail('features.json parse', e.message);
 }
@@ -266,17 +268,22 @@ if (!existsSync(behaviorScript)) {
   }
 }
 
-// 12. Grok delegation gate fixture (0xray@3.5.0+)
-const gateScript = join(root, 'node_modules/0xray/scripts/mjs/verify-grok-delegation-gate.mjs');
-if (!existsSync(gateScript)) {
-  fail('Grok delegation gate fixture', 'missing script — npm install 0xray@main (3.5.0)');
-} else {
-  try {
-    execSync(`node "${gateScript}"`, { cwd: root, stdio: 'pipe', encoding: 'utf8' });
-    pass('Grok delegation gate fixture');
-  } catch (e) {
-    const detail = (e.stderr || e.stdout || e.message || '').toString().slice(0, 160);
-    fail('Grok delegation gate fixture', detail);
+// 12. Grok delegation + synthesis gate fixtures (0xray@3.5.0+)
+for (const [label, scriptName] of [
+  ['Grok delegation gate fixture', 'verify-grok-delegation-gate.mjs'],
+  ['Grok synthesis gate fixture', 'verify-grok-synthesis-gate.mjs'],
+]) {
+  const gateScript = join(root, 'node_modules/0xray/scripts/mjs', scriptName);
+  if (!existsSync(gateScript)) {
+    fail(label, 'missing script — npm install 0xray@main (3.5.0+)');
+  } else {
+    try {
+      execSync(`node "${gateScript}"`, { cwd: root, stdio: 'pipe', encoding: 'utf8' });
+      pass(label);
+    } catch (e) {
+      const detail = (e.stderr || e.stdout || e.message || '').toString().slice(0, 160);
+      fail(label, detail);
+    }
   }
 }
 
