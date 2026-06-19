@@ -28,6 +28,8 @@ const requiredPaths = [
   'dist/index.js',
   'dist/mcp/server.js',
   'dist/provider/memory-routing-provider.js',
+  'scripts/verify-grok-suit.mjs',
+  'scripts/suit-bridge-shared.mjs',
   'data/curated_signals.json',
   'LICENSE',
   'README.md',

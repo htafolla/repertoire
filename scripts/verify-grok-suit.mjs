@@ -7,8 +7,26 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { mcpStdioInitializeProbe } from './suit-bridge-shared.mjs';
 
-const root = resolve(import.meta.dirname, '..');
+function resolveVerifyRoot() {
+  if (process.env.SUIT_VERIFY_ROOT) return resolve(process.env.SUIT_VERIFY_ROOT);
+  if (existsSync(join(process.cwd(), '.xray', 'features.json'))) return process.cwd();
+  return resolve(import.meta.dirname, '..');
+}
+
+function resolveMemoryProviderPath(projectRoot) {
+  const local = join(projectRoot, 'dist/provider/memory-routing-provider.js');
+  if (existsSync(local)) return local;
+  const installed = join(
+    projectRoot,
+    'node_modules/@0xray/repertoire/dist/provider/memory-routing-provider.js',
+  );
+  if (existsSync(installed)) return installed;
+  return local;
+}
+
+const root = resolveVerifyRoot();
 let failed = 0;
 
 function pass(name, detail = '') {
@@ -76,9 +94,11 @@ try {
   fail('features.json parse', e.message);
 }
 
-// 3. Memory provider built
-const provider = join(root, 'dist/provider/memory-routing-provider.js');
-existsSync(provider) ? pass('memory-routing-provider.js') : fail('memory-routing-provider.js', 'run npm run build');
+// 3. Memory provider built (local dist or installed @0xray/repertoire)
+const provider = resolveMemoryProviderPath(root);
+existsSync(provider)
+  ? pass('memory-routing-provider.js')
+  : fail('memory-routing-provider.js', 'npm install @0xray/repertoire or npm run build');
 
 // 4. .mcp.json — 7 xray + repertoire
 try {
@@ -217,25 +237,16 @@ if (preToolHook) {
   }
 }
 
-// 10. MCP enforcer stdio + no server-config-registry fallback in fresh activity
+// 10. MCP enforcer stdio + no server-config-registry fallback (Node probe — no GNU timeout)
 const activityBeforeEnforcer = tailActivityLog(root);
 try {
-  const init = JSON.stringify({
-    jsonrpc: '2.0',
-    id: 1,
-    method: 'initialize',
-    params: {
-      protocolVersion: '2024-11-05',
-      capabilities: {},
-      clientInfo: { name: 'verify-grok-suit', version: '1.0' },
-    },
+  await mcpStdioInitializeProbe({
+    cwd: root,
+    command: 'npx',
+    args: ['0xray', 'mcp', 'enforcer'],
+    timeoutMs: 6000,
   });
-  const out = execSync(
-    `printf '%s\\n' '${init.replace(/'/g, "'\\''")}' | timeout 6 npx 0xray mcp enforcer 2>/dev/null | head -1`,
-    { cwd: root, encoding: 'utf8', shell: '/bin/bash' },
-  );
-  if (out.includes('serverInfo')) pass('MCP enforcer stdio');
-  else fail('MCP enforcer stdio', 'no serverInfo');
+  pass('MCP enforcer stdio');
 
   const activityNew = tailActivityLog(root).slice(activityBeforeEnforcer.length);
   if (/using-fallback-path/.test(activityNew)) {

@@ -1,6 +1,6 @@
 {
   "name": "@0xray/repertoire",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Deep memory, synthesis, and orchestrator enrichment for the 0xRay/Groover stack",
   "type": "module",
   "license": "MIT",
@@ -42,10 +42,18 @@
     }
   },
   "bin": {
-    "repertoire-mcp": "./dist/mcp/server.js"
+    "repertoire-mcp": "./dist/mcp/server.js",
+    "repertoire-verify-suit": "./scripts/verify-grok-suit.mjs"
   },
   "files": [
     "dist/",
+    "scripts/verify-grok-suit.mjs",
+    "scripts/suit-bridge-shared.mjs",
+    "scripts/confirm-suit-harness.mjs",
+    "scripts/confirm-suit-all.mjs",
+    "scripts/verify-hermes-suit.mjs",
+    "scripts/verify-opencode-suit.mjs",
+    "scripts/verify-openclaw-suit.mjs",
     "data/curated_signals.json",
     "schemas/",
     "skills/repertoire-trap-handling/",

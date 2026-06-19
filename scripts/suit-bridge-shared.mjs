@@ -81,17 +81,31 @@ export function mcpStdioInitializeProbe({ cwd, command, args, env = {}, timeoutM
       rejectProbe(new Error(`timeout after ${timeoutMs}ms`));
     }, timeoutMs);
 
-    proc.stdout.on('data', (chunk) => {
+    const finish = (ok) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      try {
+        proc.kill('SIGTERM');
+      } catch {
+        /* already exited */
+      }
+      if (ok) resolveProbe(out);
+      else rejectProbe(new Error(out.slice(0, 200) || 'no serverInfo in MCP response'));
+    };
+
+    let finished = false;
+
+    const onData = (chunk) => {
       out += chunk.toString();
-    });
-    proc.stderr.on('data', (chunk) => {
-      out += chunk.toString();
-    });
+      if (out.includes('serverInfo')) finish(true);
+    };
+
+    proc.stdout.on('data', onData);
+    proc.stderr.on('data', onData);
 
     proc.on('close', () => {
-      clearTimeout(timer);
-      if (out.includes('serverInfo')) resolveProbe(out);
-      else rejectProbe(new Error(out.slice(0, 200) || 'no serverInfo in MCP response'));
+      if (!finished) finish(out.includes('serverInfo'));
     });
 
     proc.stdin.write(`${init}\n`);
