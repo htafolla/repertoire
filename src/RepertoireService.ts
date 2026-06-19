@@ -123,6 +123,10 @@ export class RepertoireService {
     return this.orchestratorBridge.buildInheritedContext(tasks);
   }
 
+  buildSynthesisContext(projectRoot: string) {
+    return this.orchestratorBridge.buildSynthesisContext(projectRoot);
+  }
+
   selectAgent(
     capabilities: Map<string, AgentCapability>,
     requiredCapabilities: string[],

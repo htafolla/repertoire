@@ -1,8 +1,10 @@
 import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 import type {
   OrchestrationTask,
   RepertoireInheritedContext,
   RepertoireRoutingContext,
+  SynthesisCollocatedContext,
 } from '../types.js';
 import { CuratedSignalsManager } from '../registry/CuratedSignalsManager.js';
 import {
@@ -88,6 +90,55 @@ export class SignalInjector {
         },
       };
     });
+  }
+
+  buildSynthesisContext(projectRoot: string): SynthesisCollocatedContext {
+    const operation =
+      'synthesis checkpoint reflect realign coherence plan codex signals primitives';
+    const matches = this.signalsManager.matchByText(operation, 6);
+    const signalConfidences = Object.fromEntries(
+      matches
+        .map((match) => {
+          const confidence = resolveSignalConfidence(match.signal.name, this.signalsManager);
+          return confidence === null ? null : [match.signal.name, confidence];
+        })
+        .filter((entry): entry is [string, number] => entry !== null),
+    );
+
+    const matchedSignals = matches.map((match) => ({
+      name: match.signal.name,
+      definition: match.signal.definition,
+      priority: match.signal.priority,
+      ...(signalConfidences[match.signal.name] !== undefined
+        ? { confidence: signalConfidences[match.signal.name] }
+        : {}),
+    }));
+
+    const codex = this.readCodexExcerpt(projectRoot);
+    const planExcerpt = this.readPlanExcerpt(projectRoot);
+    const synthesisExcerpt = this.getSynthesisExcerpt(2000);
+
+    const sections = [
+      '# Synthesis checkpoint',
+      matchedSignals.length
+        ? `## Matched primitives\n${matchedSignals
+            .map((s) => `- ${s.name} (${s.priority}): ${s.definition}`)
+            .join('\n')}`
+        : '',
+      codex.excerpt ? `## Codex (${codex.termCount} terms)\n${codex.excerpt}` : '',
+      planExcerpt ? `## Lead-dev plan\n${planExcerpt}` : '',
+      synthesisExcerpt ? `## Prior synthesis\n${synthesisExcerpt}` : '',
+    ].filter(Boolean);
+
+    return {
+      primitive: 'synthesis',
+      matchedSignals,
+      ...(synthesisExcerpt ? { synthesisExcerpt } : {}),
+      codexTermCount: codex.termCount,
+      codexExcerpt: codex.excerpt,
+      planExcerpt,
+      collatedText: sections.join('\n\n'),
+    };
   }
 
   buildInheritedContext(tasks: OrchestrationTask[]): RepertoireInheritedContext {
@@ -176,5 +227,54 @@ export class SignalInjector {
     const section5 = content.split('## 5. Strategic Recommendations')[1];
     const excerpt = section5 ?? content.slice(-maxChars);
     return excerpt.slice(0, maxChars).trim();
+  }
+
+  private readCodexExcerpt(
+    projectRoot: string,
+    maxChars = 1200,
+  ): { termCount: number; excerpt: string } {
+    const codexPath = join(projectRoot, '.xray', 'codex.json');
+    if (!existsSync(codexPath)) return { termCount: 0, excerpt: '' };
+    try {
+      const data = JSON.parse(readFileSync(codexPath, 'utf8')) as {
+        terms?: Array<{ id?: number; rule?: string; title?: string }>;
+      };
+      const terms = data.terms ?? [];
+      const lines = terms.slice(0, 12).map((t) => {
+        const label = t.title ?? t.rule ?? '';
+        return t.id != null ? `${t.id}. ${label}` : label;
+      });
+      return { termCount: terms.length, excerpt: lines.join('\n').slice(0, maxChars) };
+    } catch {
+      return { termCount: 0, excerpt: '' };
+    }
+  }
+
+  private readPlanExcerpt(projectRoot: string, maxChars = 1200): string {
+    const planPath = join(projectRoot, '.xray', 'state', 'lead-dev-plan.json');
+    if (!existsSync(planPath)) return '';
+    try {
+      const plan = JSON.parse(readFileSync(planPath, 'utf8')) as {
+        active?: boolean;
+        phases?: Array<{
+          id: string;
+          name?: string;
+          todos: Array<{ id: string; task: string; status: string; subagent?: string }>;
+        }>;
+      };
+      const phases = plan.phases ?? [];
+      const lines: string[] = [`active: ${plan.active !== false}`];
+      for (const phase of phases) {
+        lines.push(`## ${phase.id}${phase.name ? ` — ${phase.name}` : ''}`);
+        for (const todo of phase.todos) {
+          lines.push(
+            `- [${todo.status}] ${todo.id} (${todo.subagent ?? 'agent'}): ${todo.task}`,
+          );
+        }
+      }
+      return lines.join('\n').slice(0, maxChars);
+    } catch {
+      return '';
+    }
   }
 }

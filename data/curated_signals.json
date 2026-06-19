@@ -1,6 +1,6 @@
 {
   "description": "Curated high-signal primitives and invariants surfaced by Groover inference that are not yet tracked in the Master Index or MCP filters. Each entry includes implementation guidance for autonomous agents.",
-  "last_updated": "2026-06-18T20:04:34.606Z",
+  "last_updated": "2026-06-19T11:05:26.608Z",
   "source": "meta-inference-2026-06-17-deep",
   "schema_version": "1.1",
   "implementation_guidance": {
@@ -37,21 +37,21 @@
       "master_index_integration": "Should be registered as a first-class signal type. Queries for 'attestation' should surface entries that distinguish map vs verdict semantics.",
       "implementation_notes": "Add detection logic in the inference prompt for replies that contrast 'map' vs 'verdict' language. Enforce via govern_with_solar on ontological-trap entries.",
       "observation_stats": {
-        "observation_count": 335,
+        "observation_count": 347,
         "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 336
       },
       "feedback_stats": {
-        "outcome_count": 148,
-        "success_count": 37,
-        "failure_count": 111,
+        "outcome_count": 233,
+        "success_count": 47,
+        "failure_count": 186,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     },
     {
@@ -77,21 +77,21 @@
       "master_index_integration": "Store as a required boundary primitive. Master Index queries should be able to filter for entries that have vs have not passed consumption-boundary revalidation.",
       "implementation_notes": "This should become a required step in the govern_with_solar flow for any ontological-trap classified reply. Add to the inference prompt as a mandatory closure primitive when this gap is detected.",
       "observation_stats": {
-        "observation_count": 335,
-        "avg_confidence": 0.5888656716417907,
+        "observation_count": 337,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 326
       },
       "feedback_stats": {
-        "outcome_count": 88,
+        "outcome_count": 153,
         "success_count": 6,
-        "failure_count": 82,
+        "failure_count": 147,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     },
     {
@@ -115,21 +115,21 @@
       "master_index_integration": "Should be queryable as a 'mutation surface' signal. Entries that passed through parse-mutation-detector checks should be distinguishable.",
       "implementation_notes": "Add to the negative-space analysis step in the inference prompt. When detected, the reply should propose a concrete detector primitive.",
       "observation_stats": {
-        "observation_count": 335,
-        "avg_confidence": 0.5888656716417907,
+        "observation_count": 337,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 326
       },
       "feedback_stats": {
-        "outcome_count": 88,
+        "outcome_count": 153,
         "success_count": 6,
-        "failure_count": 82,
+        "failure_count": 147,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     },
     {
@@ -152,21 +152,21 @@
       "master_index_integration": "Introduce a signal category for 'geometry-based invariants' separate from provenance-based ones.",
       "implementation_notes": "This is more research-oriented. Add as an optional analysis dimension in the inference prompt for high-stakes ontological-trap cases.",
       "observation_stats": {
-        "observation_count": 337,
-        "avg_confidence": 0.5865697329376853,
+        "observation_count": 339,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 326
       },
       "feedback_stats": {
-        "outcome_count": 88,
+        "outcome_count": 147,
         "success_count": 6,
-        "failure_count": 82,
+        "failure_count": 141,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     },
     {
@@ -189,21 +189,21 @@
       "master_index_integration": "Track as a hermeneutic/interpretation signal. Should be queryable when analyzing interpretation quality.",
       "implementation_notes": "Add detection in the TYPE classification step. When detected, the reply should surface the gap as a first-class signal.",
       "observation_stats": {
-        "observation_count": 327,
-        "avg_confidence": 0.5939999999999996,
+        "observation_count": 329,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 326
       },
       "feedback_stats": {
-        "outcome_count": 88,
+        "outcome_count": 147,
         "success_count": 6,
-        "failure_count": 82,
+        "failure_count": 141,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     },
     {
@@ -226,21 +226,21 @@
       "master_index_integration": "Register as a boundary-enforcement primitive. Should appear in queries about trust boundaries.",
       "implementation_notes": "Strong candidate for direct integration into govern_with_solar. When this signal appears, the reply should propose a concrete embedding mechanism.",
       "observation_stats": {
-        "observation_count": 335,
-        "avg_confidence": 0.5888656716417907,
+        "observation_count": 337,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 326
       },
       "feedback_stats": {
-        "outcome_count": 88,
+        "outcome_count": 153,
         "success_count": 6,
-        "failure_count": 82,
+        "failure_count": 147,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     },
     {
@@ -263,21 +263,21 @@
       "master_index_integration": "Should be a core boundary primitive. Master Index should support queries for chains of trust-transfer-boundary records.",
       "implementation_notes": "This is one of the most actionable. Add as a required output primitive when the inference detects a handoff or multi-agent scenario.",
       "observation_stats": {
-        "observation_count": 335,
-        "avg_confidence": 0.5888656716417907,
+        "observation_count": 337,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 326
       },
       "feedback_stats": {
-        "outcome_count": 88,
+        "outcome_count": 153,
         "success_count": 6,
-        "failure_count": 82,
+        "failure_count": 147,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     },
     {
@@ -300,21 +300,54 @@
       "master_index_integration": "Track as an interpretation-risk signal. Useful for auditing hermeneutic consistency.",
       "implementation_notes": "Primarily relevant for posts with strong interpretive/hermeneutic dimensions. Add as a TYPE sub-classification when detected.",
       "observation_stats": {
-        "observation_count": 327,
-        "avg_confidence": 0.5939999999999996,
+        "observation_count": 329,
+        "avg_confidence": 0.55,
         "max_confidence": 1,
-        "last_seen": "2026-06-18T20:04:34.606Z",
-        "governance_forced_count": 324
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 326
       },
       "feedback_stats": {
-        "outcome_count": 88,
+        "outcome_count": 147,
         "success_count": 6,
-        "failure_count": 82,
+        "failure_count": 141,
         "last_outcome": "failure",
         "last_task_id": "a34-reject-proof",
         "last_assigned_agent": "field-shadow",
         "last_duration_ms": 0,
-        "last_seen": "2026-06-18T20:04:34.606Z"
+        "last_seen": "2026-06-19T11:05:26.607Z"
+      }
+    },
+    {
+      "name": "synthesis",
+      "definition": "Periodic reflect-and-realign checkpoint that collocates codex, plan state, curated signals, and prior synthesis before execution resumes.",
+      "example_inference_snippet": "Synthesis checkpoint due — pause execution, consult orchestrator analyze-complexity with collocated context, then realign todos and delegation order.",
+      "tags": [
+        "checkpoint",
+        "coherence",
+        "orchestration"
+      ],
+      "batches": [
+        8
+      ],
+      "first_seen": "2026-06-19",
+      "status": "validated",
+      "priority": "high",
+      "evaluation_criteria": "Agent invokes analyze-complexity when synthesisDue is set, completes the checkpoint, and resumes with an updated lead-dev plan.",
+      "validation_experiment": "Enable synthesis.every_n_gates=2, run two gated tool calls, verify synthesis-checkpoint deny then analyze-complexity clears due state.",
+      "master_index_integration": "Register as orchestration primitive; surface in memory routing buildSynthesisContext.",
+      "implementation_notes": "Wired via 0xRay delegation-gate evaluateSynthesisGate and Repertoire buildSynthesisContext.",
+      "observation_stats": {
+        "observation_count": 0,
+        "avg_confidence": 0,
+        "max_confidence": 0,
+        "last_seen": "2026-06-19T11:05:26.607Z",
+        "governance_forced_count": 0
+      },
+      "feedback_stats": {
+        "outcome_count": 0,
+        "success_count": 0,
+        "failure_count": 0,
+        "last_seen": "2026-06-19T11:05:26.607Z"
       }
     }
   ]

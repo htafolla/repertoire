@@ -161,6 +161,21 @@ export interface RepertoireInheritedContext {
   ontologicalTrapSignals: string[];
 }
 
+export interface SynthesisCollocatedContext {
+  primitive: 'synthesis';
+  matchedSignals: Array<{
+    name: string;
+    definition: string;
+    priority: SignalPriority;
+    confidence?: number;
+  }>;
+  synthesisExcerpt?: string;
+  codexTermCount: number;
+  codexExcerpt: string;
+  planExcerpt: string;
+  collatedText: string;
+}
+
 export interface OrchestratorFeedbackEntry {
   timestamp: string;
   sessionId: string;

@@ -110,6 +110,7 @@ export interface MemoryRoutingProvider {
   ): MemoryThinDispatchResult;
   getTaskConfidence?(task: MemoryOrchestrationTask): MemoryTaskConfidence;
   ingestFeedback?(entry: OrchestratorFeedbackEntry): void;
+  buildSynthesisContext?(opts: { projectRoot: string }): Record<string, unknown> | null;
 }
 
 function toRepertoireCaps(caps: MemoryAgentCapability): AgentCapability {
@@ -307,6 +308,12 @@ export class RepertoireMemoryRoutingProvider implements MemoryRoutingProvider {
       durationMs: entry.durationMs,
       dynamoResult: entry.dynamoResult,
     });
+  }
+
+  buildSynthesisContext(opts: { projectRoot: string }): Record<string, unknown> | null {
+    return this.service.buildSynthesisContext(
+      opts.projectRoot,
+    ) as unknown as Record<string, unknown>;
   }
 }
 

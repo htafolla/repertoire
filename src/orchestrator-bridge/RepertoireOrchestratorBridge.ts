@@ -4,6 +4,7 @@ import type {
   OrchestrationTask,
   RepertoireInheritedContext,
   RepertoireRoutingContext,
+  SynthesisCollocatedContext,
   TaskConfidenceContext,
 } from '../types.js';
 import { CuratedSignalsManager } from '../registry/CuratedSignalsManager.js';
@@ -40,6 +41,10 @@ export class RepertoireOrchestratorBridge {
 
   buildInheritedContext(tasks: OrchestrationTask[]): RepertoireInheritedContext {
     return this.injector.buildInheritedContext(tasks);
+  }
+
+  buildSynthesisContext(projectRoot: string): SynthesisCollocatedContext {
+    return this.injector.buildSynthesisContext(projectRoot);
   }
 
   enrichExecutionPlan(
