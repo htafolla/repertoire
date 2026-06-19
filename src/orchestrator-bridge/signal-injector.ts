@@ -92,7 +92,10 @@ export class SignalInjector {
     });
   }
 
-  buildSynthesisContext(projectRoot: string): SynthesisCollocatedContext {
+  buildSynthesisContext(
+    projectRoot: string,
+    dueReason: string | null = null,
+  ): SynthesisCollocatedContext {
     const operation =
       'synthesis checkpoint reflect realign coherence plan codex signals primitives';
     const matches = this.signalsManager.matchByText(operation, 6);
@@ -120,6 +123,7 @@ export class SignalInjector {
 
     const sections = [
       '# Synthesis checkpoint',
+      dueReason ? `Due: ${dueReason}` : '',
       matchedSignals.length
         ? `## Matched primitives\n${matchedSignals
             .map((s) => `- ${s.name} (${s.priority}): ${s.definition}`)

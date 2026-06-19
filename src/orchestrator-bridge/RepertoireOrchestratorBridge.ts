@@ -43,8 +43,11 @@ export class RepertoireOrchestratorBridge {
     return this.injector.buildInheritedContext(tasks);
   }
 
-  buildSynthesisContext(projectRoot: string): SynthesisCollocatedContext {
-    return this.injector.buildSynthesisContext(projectRoot);
+  buildSynthesisContext(
+    projectRoot: string,
+    dueReason: string | null = null,
+  ): SynthesisCollocatedContext {
+    return this.injector.buildSynthesisContext(projectRoot, dueReason);
   }
 
   enrichExecutionPlan(
